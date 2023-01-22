@@ -22,7 +22,7 @@ jobs:
 
           cd ..
           curl -LO https://cdn.nickchan.lol/palera1n/c-rewrite/deps/dep_root_macos.tgz
-          tar xf dep_root-macos.tgz
+          tar xf dep_root_macos.tgz
           make -j5 download-checkra1n
 
       - name: Build
