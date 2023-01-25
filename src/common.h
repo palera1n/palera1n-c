@@ -24,6 +24,7 @@
 #if defined(__APPLE__)
 #include <mach-o/loader.h>
 #include <mach-o/ldsyms.h>
+#include <mach-o/dyld.h>
 #else
 #define MH_MAGIC_64 0xfeedfacf
 #define MH_CIGAM_64 0xcffaedfe
@@ -92,7 +93,7 @@ typedef int usb_ret_t;
 typedef libusb_device_handle *usb_device_handle_t;
 
 extern unsigned int verbose;
-extern int spin, demote;
+extern int spin, demote, pongo_spin;
 
 extern char* pongo_path;
 
@@ -119,6 +120,8 @@ extern char kpf_flags_cmd[0x20];
 extern char dtpatch_cmd[0x20];
 extern char rootfs_cmd[512];
 
+extern libusb_hotplug_callback_handle hp[2];
+
 extern bool palerain_version;
 
 void thr_cleanup(void* ptr);
@@ -141,7 +144,7 @@ int exitrecv_cmd(const uint64_t ecid);
 void exec_checkra1n();
 int override_file(override_file_t *finfo, niarelap_file_t** orig, unsigned int *orig_len, char *filename);
 void* pongo_helper(void* ptr);
-
+void pongo_thr_cleanup(void* ptr);
 
 extern void* pongo_usb_callback(void* arg);
 usb_ret_t USBControlTransfer(usb_device_handle_t handle, uint8_t bmRequestType, uint8_t bRequest, uint16_t wValue, uint16_t wIndex, uint32_t wLength, void *data, uint32_t *wLenDone);

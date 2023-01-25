@@ -12,26 +12,32 @@
 
 #include "common.h"
 
-int found_pongo = 0; 
+int found_pongo = 0, pongo_spin = 1;
 
 void* pongo_helper(void* ptr) {
-	pongo_thr_running = 1;
-	pthread_cleanup_push(thr_cleanup, &pongo_thr_running);
+#if defined(__APPLE__) || defined(__linux__)
+	pthread_setname_np("in.palera.pongo-helper");
+#endif
+	// pthread_cleanup_push(pongo_thr_cleanup, NULL);
 	wait_for_pongo();
-	while (spin) {
+	while (1) {
 		sleep(1);
 	}
-	pthread_cleanup_pop(1);
 	return NULL;
 }
 
 void *pongo_usb_callback(void *arg) {
-	if (found_pongo)
+	if (found_pongo) {
+		LOG(LOG_WARNING, "PongoOS already found, not doing anything");
 		return NULL;
+	}
+#if defined(__APPLE__) || defined(__linux__)
+	pthread_setname_np("in.palera.pongo-callback");
+#endif
 	found_pongo = 1;
 	LOG(LOG_INFO, "Found PongoOS USB Device");
 	usb_device_handle_t handle = *(usb_device_handle_t *)arg;
-	issue_pongo_command(handle, NULL);	
+	issue_pongo_command(handle, NULL);
 	issue_pongo_command(handle, "fuse lock");
 	issue_pongo_command(handle, "sep auto");
 	upload_pongo_file(handle, **kpf_to_upload, checkra1n_kpf_pongo_len);
@@ -58,5 +64,6 @@ void *pongo_usb_callback(void *arg) {
 		pthread_cancel(dfuhelper_thread);
 	}
 	spin = false;
+	pongo_spin = 0;
 	return NULL;
 }

@@ -50,6 +50,7 @@ typedef struct stuff stuff_t;
 
 static void io_start(stuff_t *stuff);
 static void io_stop(stuff_t *stuff);
+libusb_hotplug_callback_handle hp[2];
 
 
 const char *usb_strerror(usb_ret_t err)
@@ -193,10 +194,10 @@ static int LostDevice(libusb_context *ctx, libusb_device *dev, libusb_hotplug_ev
     return LIBUSB_SUCCESS;
 }
 
+
 int wait_for_pongo(void)
 {
     stuff_t stuff = {};
-    libusb_hotplug_callback_handle hp[2];
 
     int r = libusb_init(NULL);
     if(r != LIBUSB_SUCCESS)
@@ -219,7 +220,6 @@ int wait_for_pongo(void)
         libusb_exit(NULL);
         return -1;
     }
-
     r = libusb_hotplug_register_callback(NULL, LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT, 0, PONGO_USB_VENDOR, PONGO_USB_PRODUCT, LIBUSB_HOTPLUG_MATCH_ANY, LostDevice, &stuff, &hp[1]);
     if(r != LIBUSB_SUCCESS)
     {
@@ -227,7 +227,6 @@ int wait_for_pongo(void)
         libusb_exit(NULL);
         return -1;
     }
-
     libusb_device **list;
     ssize_t sz = libusb_get_device_list(NULL, &list);
     if(sz < 0)
@@ -252,6 +251,7 @@ int wait_for_pongo(void)
             continue;
         }
         r = FoundDevice(NULL, list[i], LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED, &stuff);
+        libusb_hotplug_deregister_callback(NULL, hp[0]);
         for(ssize_t j = i + 1; j < sz; ++j)
         {
             libusb_unref_device(list[j]);
@@ -266,7 +266,7 @@ int wait_for_pongo(void)
     }
     libusb_free_device_list(list, 0);
 
-    while(spin)
+    while(pongo_spin)
     {
         r = libusb_handle_events(NULL);
         if(r != LIBUSB_SUCCESS)
@@ -275,8 +275,6 @@ int wait_for_pongo(void)
             break;
         }
     }
-
-    libusb_exit(NULL);
     return -1;
 }
 

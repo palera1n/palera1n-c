@@ -31,10 +31,7 @@
 #include "kerninfo.h"
 
 unsigned int verbose = 0U;
-int enable_rootful = 0;
-int do_pongo_sleep = 0;
-int device_has_booted = 0;
-int demote = 0;
+int enable_rootful = 0, do_pongo_sleep = 0, device_has_booted = 0, demote = 0;
 int pongo_thr_running = 0, dfuhelper_thr_running = 0;
 bool ohio = true;
 char xargs_cmd[0x270] = "xargs wdt=-1";
@@ -100,6 +97,20 @@ void thr_cleanup(void* ptr) {
 	return;
 }
 
+int print_debug_info() {
+	fprintf(stderr, "Addresses: \n");
+	fprintf(stderr,
+		"&verbose = %p\n"
+		"&enable_rootful = %p, &do_pongo_sleep = %p, &device_has_booted = %p, &demote = %p\n"
+		"&pongo_thr_running = %p, &dfuhelper_thr_running = %p, &ohio = %p\n",
+		&verbose,
+		&enable_rootful, &do_pongo_sleep, &device_has_booted, &demote,
+		&pongo_thr_running, &dfuhelper_thr_running, &ohio
+	);
+	fflush(stderr);
+	return 0;
+}
+
 int palera1n(int argc, char *argv[]) {
 	int ret = 0;
 	int mutex_err = pthread_mutex_init(&log_mutex, NULL);
@@ -108,28 +119,45 @@ int palera1n(int argc, char *argv[]) {
 		return -1;
 	}
 	if (build_checks()) return -1;
+#if defined(__linux__)
+	if (access("/proc/self/exe", F_OK) != 0) {
+		LOG(LOG_FATAL, "/proc must be mounted");
+		return -1;
+	}
+#endif
 	if ((ret = optparse(argc, argv))) goto cleanup;
+	if (verbose >= 5) print_debug_info();
 	LOG(LOG_INFO, "Waiting for devices");
-
-	do_pongo_sleep = 1;
+	do_pongo_sleep = 0;
 	pthread_create(&dfuhelper_thread, NULL, dfuhelper, NULL);
 	pthread_create(&pongo_thread, NULL, pongo_helper, NULL);
 	pthread_join(dfuhelper_thread, NULL);
 	if (device_has_booted) goto done;
 	if (dfuhelper_only)
 		return 0;
-	if (pongo_thr_running) {
-		pthread_cancel(pongo_thread);
-	}
+	do_pongo_sleep = 1;
 	exec_checkra1n();
-	if (pongo_exit)
+	if (pongo_exit || demote)
 		return 0;
 	else
 		LOG(LOG_INFO, "Waiting for PongoOS devices...");
+#if defined(__APPLE__)
+	char buf[PATH_MAX];
+	uint32_t bufsize = sizeof(buf);
+	_NSGetExecutablePath(buf, &bufsize);
+	execv(buf, argv);
+#elif defined(__linux__)
+	execv("/proc/self/exe", argv);
+#else
+#error "unsupported"
+#endif
+	LOG(LOG_FATAL, "exec failed: %d (%s)\n", errno, strerror(errno));
+	return -1;
 	spin = true;
-	sleep(2);
-	pthread_create(&pongo_thread, NULL, pongo_helper, NULL);
-	pthread_join(pongo_thread, NULL);
+	// sleep(2);
+	// pthread_create(&pongo_thread, NULL, pongo_helper, NULL);
+	// pthread_join(pongo_thread, NULL);
+    // libusb_exit(NULL);
 	while (spin)
 	{
 		sleep(1);
