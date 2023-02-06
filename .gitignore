@@ -17,3 +17,4 @@ src/xxd-*.c
 palera1n.1.html
 Payload
 docs/*.html
+build
