@@ -1,17 +1,17 @@
 execute_process(
-        COMMAND sh -c 'curl -LO https://assets.checkra.in/downloads/preview/${CHECKRA1N_VERSION}/${CHECKRA1N_FILE_NAME} && chmod 755 ${CHECKRA1N_FILE_NAME}'
+        COMMAND sh -c "curl -LO https://assets.checkra.in/downloads/preview/${CHECKRA1N_VERSION}/${CHECKRA1N_FILE_NAME} && chmod 755 ${CHECKRA1N_FILE_NAME}"
 )
 
 if(APPLE)
     execute_process(
-            COMMAND sh -c '${LDID} -Scheckra1n.plist checkra1n'
+            COMMAND sh -c "${LDID} -Scheckra1n.plist checkra1n"
     )
     execute_process(
             COMMAND ${LIPO} -thin ${CMAKE_SYSTEM_PROCESSOR} -output checkra1n checkra1n-macos
     )
     if(CFLAGS MATCHES "version-min=")
         execute_process(
-                COMMAND sh -c 'vtool -remove-build-version 1 -replace -output checkra1n checkra1n && vtool -set-build-version $(FAKE_PLATFORM) $(FAKE_MINOS) $(FAKE_SDK) -replace -output checkra1n checkra1n && install_name_tool -change /System/Library/Frameworks/IOKit.framework/Versions/A/IOKit /System/Library/Frameworks/IOKit.framework/IOKit checkra1n && install_name_tool -change /System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation /System/Library/Frameworks/CoreFoundation.framework/CoreFoundation checkra1n && ${LDID} -Susb.xml checkra1n'
+                COMMAND sh -c "vtool -remove-build-version 1 -replace -output checkra1n checkra1n && vtool -set-build-version $(FAKE_PLATFORM) $(FAKE_MINOS) $(FAKE_SDK) -replace -output checkra1n checkra1n && install_name_tool -change /System/Library/Frameworks/IOKit.framework/Versions/A/IOKit /System/Library/Frameworks/IOKit.framework/IOKit checkra1n && install_name_tool -change /System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation /System/Library/Frameworks/CoreFoundation.framework/CoreFoundation checkra1n && ${LDID} -Susb.xml checkra1n"
         )
     endif()
 else()
@@ -42,30 +42,30 @@ if(CFLAGS MATCHES "version-min=" AND APPLE)
 endif()
 
 execute_process(
-        COMMAND sh -c 'curl -LO https://github.com/guacaplushy/checkp4le/raw/main/binaries/checkra1n-kpf-pongo'
+        COMMAND sh -c "curl -LO https://github.com/guacaplushy/checkp4le/raw/main/binaries/checkra1n-kpf-pongo"
 )
 
 execute_process(
-        COMMAND sh -c 'curl -LO https://cdn.nickchan.lol/palera1n/c-rewrite/deps/ramdisk.dmg'
+        COMMAND sh -c "curl -LO https://cdn.nickchan.lol/palera1n/c-rewrite/deps/ramdisk.dmg"
 )
 
 execute_process(
-        COMMAND sh -c 'curl -LO https://cdn.nickchan.lol/palera1n/c-rewrite/deps/binpack.dmg'
+        COMMAND sh -c "curl -LO https://cdn.nickchan.lol/palera1n/c-rewrite/deps/binpack.dmg"
 )
 
 execute_process(
-        COMMAND sh -c 'xxd -iC checkra1n-kpf-pongo > checkra1n-kpf-pongo.c'
+        COMMAND sh -c "xxd -iC checkra1n-kpf-pongo > checkra1n-kpf-pongo.c"
 )
 
 execute_process(
-        COMMAND sh -c 'xxd -iC ramdisk.dmg > ramdisk.dmg.c'
+        COMMAND sh -c "xxd -iC ramdisk.dmg > ramdisk.dmg.c"
 )
 execute_process(
-        COMMAND sh -c 'xxd -iC binpack.dmg > binpack.dmg.c'
+        COMMAND sh -c "xxd -iC binpack.dmg > binpack.dmg.c"
 )
 
 execute_process(
-        COMMAND sh -c 'xxd -iC checkra1n > checkra1n.c'
+        COMMAND sh -c "xxd -iC checkra1n > checkra1n.c"
 )
 
 
