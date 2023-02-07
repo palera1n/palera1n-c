@@ -33,13 +33,12 @@ jobs:
         uses: wangyucode/sftp-upload-action@v1.4.8
         with:
           host: ${{ secrets.FTP_HOST }}
-          port: ${{ secrets.FTP_PORT }}
           username: ${{ secrets.FTP_USER }}
-          privateKey: ${{ secrets.FTP_KEY }}
+          password: ${{ secrets.FTP_KEY }}
           forceUpload: true
           dryRun: false
           localDir: 'ready'
-          remoteDir: '/palera1n/docs'
+          remoteDir: '/srv/ftp/palera1n/docs'
 
   build-darwin:
     strategy:
@@ -337,7 +336,7 @@ jobs:
         with:
           host: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USER }}
-          privateKey: ${{ secrets.FTP_KEY }}
+          password: ${{ secrets.FTP_KEY }}
           forceUpload: true
           dryRun: false
           localDir: 'ready/'
@@ -664,9 +663,9 @@ jobs:
         with:
           host: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USER }}
-          privateKey: ${{ secrets.FTP_KEY }}
+          password: ${{ secrets.FTP_KEY }}
           forceUpload: true
           dryRun: false
           localDir: '.'
-          remoteDir: '/palera1n/for-inspection'
+          remoteDir: '/srv/ftp/palera1n/for-inspection'
 
