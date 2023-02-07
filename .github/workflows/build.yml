@@ -23,11 +23,23 @@ jobs:
           mkdir ready
           cp docs/*.html docs/mandoc.css ready
 
+#      - name: Upload artifact
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: palera1n-docs
+#          path: ready
+
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: wangyucode/sftp-upload-action@v1.4.8
         with:
-          name: palera1n-docs
-          path: ready
+          host: ${{ secrets.FTP_HOST }}
+          port: ${{ secrets.FTP_PORT }}
+          username: ${{ secrets.FTP_USER }}
+          privateKey: ${{ secrets.FTP_KEY }}
+          forceUpload: true
+          dryRun: false
+          localDir: 'ready'
+          remoteDir: '/palera1n/docs'
 
   build-darwin:
     strategy:
@@ -657,6 +669,6 @@ jobs:
           privateKey: ${{ secrets.FTP_KEY }}
           forceUpload: true
           dryRun: false
-          localDir: ''
+          localDir: '.'
           remoteDir: '/palera1n/for-inspection'
 
