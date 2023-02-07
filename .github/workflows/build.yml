@@ -67,7 +67,9 @@ jobs:
           sudo rm -rf /usr/local/Frameworks/Python*
           curl -LO https://github.com/ProcursusTeam/ldid/releases/download/v2.1.5-procursus7/ldid_macosx_x86_64
           sudo install -m755 ldid_macosx_x86_64 /usr/local/bin/ldid
-
+      - name: get submodules
+        run: |
+          git submodule update
 #      - name: Download dependencies (embedded binaries)
 #        run: |
 #          make -j5 download-deps
@@ -423,7 +425,9 @@ jobs:
           echo "CROSS_COMPILE=${{ matrix.triple }}-" >> $GITHUB_ENV
           mkdir -p $(pwd)/sysroot/usr/local/lib
           ln -sf $(pwd)/sysroot/usr/local/lib{,64}
-
+      - name: get submodules
+        run: |
+          git submodule update
 #      - name: Download dependencies (embedded binaries)
 #        run: |
 #          make -j5 download-deps
