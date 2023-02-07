@@ -2,7 +2,8 @@
 
 
 
-
+set(SRC ${CMAKE_CURRENT_SOURCE_DIR})
+set(DEP ${SRC}/dep_root)
 
 if(${CHECKRA1N_VERSION})
     set(CHECKRA1N_VERSION 0.1337.1)
@@ -150,10 +151,10 @@ endif()
 
 
 if(!BUILD_DATE)
-execute_process(COMMAND date OUTPUT_VARIABLE BUILD_DATE)
+    execute_process(COMMAND date OUTPUT_VARIABLE BUILD_DATE)
 endif()
 if(!BUILD_TAG)
-execute_process(COMMAND git describe --dirty --tags --abbrev=7 OUTPUT_VARIABLE BUILD_TAG)
+    execute_process(COMMAND git describe --dirty --tags --abbrev=7 OUTPUT_VARIABLE BUILD_TAG)
 endif()
 if(!BUILD_WHOAMI)
     execute_process(COMMAND whoami OUTPUT_VARIABLE BUILD_WHOAMI)
