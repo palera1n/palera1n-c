@@ -28,3 +28,6 @@
 [submodule "readline"]
 	path = readline
 	url = https://git.savannah.gnu.org/git/readline.git
+[submodule "slang"]
+	path = slang
+	url = git://git.jedsoft.org/git/slang.git
