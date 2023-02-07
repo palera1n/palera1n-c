@@ -622,11 +622,11 @@ jobs:
 
       - name: Seperate debug symbols
         run: |
-          ${{ matrix.triple }}-objcopy --only-keep-debug src/palera1n palera1n.debug
-          ${{ matrix.triple }}-strip --strip-debug --strip-unneeded src/palera1n
-          ${{ matrix.triple }}-objcopy --add-gnu-debuglink=palera1n.debug src/palera1n
+          ${{ matrix.triple }}-objcopy --only-keep-debug build/palera1n palera1n.debug
+          ${{ matrix.triple }}-strip --strip-debug --strip-unneeded build/palera1n
+          ${{ matrix.triple }}-objcopy --add-gnu-debuglink=palera1n.debug build/palera1n
           chmod -x palera1n.debug
-      
+
       - name: Prepare artifact
         run: |
           mkdir ready
