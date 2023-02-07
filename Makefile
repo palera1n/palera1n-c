@@ -4,13 +4,14 @@ STRIP = strip
 CC ?= cc
 CFLAGS += -I$(DEP)/include -I$(SRC)/include -I$(SRC)
 CFLAGS += -Wall -Wextra -DPALERAIN_VERSION=\"2.0.0\" -Wall -Wextra -Wno-unused-parameter
-CFLAGS += -Wno-unused-variable -I$(SRC)/src -std=c99 -pedantic-errors
+CFLAGS += -Wno-unused-variable -I$(SRC)/src -std=c99 -pedantic-errors -D_C99_SOURCE -D_POSIX_C_SOURCE=199506L
 LIBS += $(DEP)/lib/libimobiledevice-1.0.a $(DEP)/lib/libirecovery-1.0.a $(DEP)/lib/libusbmuxd-2.0.a
 LIBS += $(DEP)/lib/libimobiledevice-glue-1.0.a $(DEP)/lib/libplist-2.0.a -pthread
 ifeq ($(TARGET_OS),)
 TARGET_OS = $(shell uname -s)
 endif
 ifeq ($(TARGET_OS),Darwin)
+CFLAGS += -Wno-nullability-extension
 ifeq (,$(findstring version-min=, $(CFLAGS)))
 CFLAGS += -mmacosx-version-min=10.8
 endif
