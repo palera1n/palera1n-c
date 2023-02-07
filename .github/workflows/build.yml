@@ -155,7 +155,6 @@ jobs:
       - name: Build Mbed TLS
         run: |
           cd mbedtls
-#          cat ../patches/mbedtls/0001-Allow-empty-x509-cert-issuer.patch | patch -sN -d . -p1
           mkdir build
           cd build
           SDKROOT="${{ env.SDK }}" cmake .. \
@@ -463,7 +462,6 @@ jobs:
       - name: Build Mbed TLS
         run: |
           cd mbedtls
-          cat ../patches/mbedtls/0001-Allow-empty-x509-cert-issuer.patch | patch -sN -d . -p1
           mkdir build
           cd build
           cmake .. \
