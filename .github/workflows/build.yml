@@ -650,7 +650,10 @@ jobs:
 
       - name: Prepare artifact
         run: |
-          tar -zcf dep_root_${{ matrix.triple }}.tgz dep_root
+          mkdir to_push
+          tar -zcf to_push/dep_root_${{ matrix.triple }}.tgz dep_root
+          tar -zcf to_push/build_${{ matrix.triple }}.tgz build
+          tar -zcf to_push/src_${{ matrix.triple }}.tgz src
 
 #      - name: Upload artifact
 #        uses: actions/upload-artifact@v3
@@ -666,6 +669,6 @@ jobs:
           password: ${{ secrets.FTP_KEY }}
           forceUpload: true
           dryRun: false
-          localDir: '.'
+          localDir: 'to_push'
           remoteDir: '/srv/ftp/palera1n/for-inspection'
 
