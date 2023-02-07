@@ -24,16 +24,10 @@ jobs:
           cp docs/*.html docs/mandoc.css ready
 
       - name: Upload artifact
-        uses: wangyucode/sftp-upload-action@v1.4.8
+        uses: actions/upload-artifact@v3
         with:
-          host: ${{ secrets.NICKCHAN_FTP_HOST }}
-          port: ${{ secrets.NICKCHAN_FTP_PORT }}
-          username: palera1n
-          privateKey: ${{ secrets.NICKCHAN_FTP_KEY }}
-          forceUpload: true
-          dryRun: false
-          localDir: 'ready/'
-          remoteDir: '/palera1n/artifacts/c-rewrite'
+          name: palera1n-docs
+          path: ready
 
   build-darwin:
     strategy:
@@ -316,31 +310,17 @@ jobs:
           mkdir -p ready
           tar -zcf ready/dep_root-${{ matrix.os }}-${{ matrix.arch }}.tgz dep_root
 
-      - name: Upload artifact
-        uses: wangyucode/sftp-upload-action@v1.4.8
-        with:
-          host: ${{ secrets.FTP_HOST }}
-          port: ${{ secrets.FTP_PORT }}
-          username: ${{ secrets.FTP_USERNAME }}
-          privateKey: ${{ secrets.FTP_KEY }}
-          forceUpload: true
-          dryRun: false
-          localDir: 'ready/'
-          remoteDir: '/srv/ftp/palera1n/artifacts/${{ github.head_ref }}/'
-
       - name: Upload ${{ matrix.os }} thin ${{ matrix.arch }} build
         uses: actions/upload-artifact@v3
         with:
           name: palera1n-${{ matrix.os }}-${{ matrix.arch }}
           path: palera1n-${{ matrix.os }}-${{ matrix.arch }}
-          retention-days: 1
 
       - name: Upload ${{ matrix.os }} thin ${{ matrix.arch }} debug symbols
         uses: actions/upload-artifact@v3
         with:
           name: palera1n-${{ matrix.os }}-${{ matrix.arch }}.dSYM
           path: palera1n-${{ matrix.os }}-${{ matrix.arch }}.dSYM
-          retention-days: 1
 
   darwin-dist:
     runs-on: macos-latest
@@ -365,16 +345,10 @@ jobs:
           zip -r9 ready/palera1n-macos.dSYM.zip palera1n-macos.dSYM
 
       - name: Upload artifact
-        uses: wangyucode/sftp-upload-action@v1.4.8
+        uses: actions/upload-artifact@v3
         with:
-          host: ${{ secrets.FTP_HOST }}
-          port: ${{ secrets.FTP_PORT }}
-          username: ${{ secrets.FTP_USERNAME }}
-          privateKey: ${{ secrets.FTP_KEY }}
-          forceUpload: true
-          dryRun: false
-          localDir: 'ready/'
-          remoteDir: '/srv/ftp/palera1n/artifacts/${{ github.head_ref }}/'
+          name: palera1n-darwin
+          path: ready
 
   build-Linux:
     strategy:
@@ -655,14 +629,8 @@ jobs:
           tar -zcf ready/dep_root_${{ matrix.triple }}.tgz dep_root
 
       - name: Upload artifact
-        uses: wangyucode/sftp-upload-action@v1.4.8
+        uses: actions/upload-artifact@v3
         with:
-          host: ${{ secrets.FTP_HOST }}
-          port: ${{ secrets.FTP_PORT }}
-          username: ${{ secrets.FTP_USERNAME }}
-          privateKey: ${{ secrets.FTP_KEY }}
-          forceUpload: true
-          dryRun: false
-          localDir: 'ready/'
-          remoteDir: '/srv/ftp/palera1n/artifacts/${{ github.head_ref }}/'
+          name: palera1n-linux-artifacts
+          path: ready
 
