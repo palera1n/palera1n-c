@@ -1,4 +1,4 @@
-execute_process(COMMAND sh -c "cd ../dep_root && sh ../download_deps.sh")
+#execute_process(COMMAND sh -c "cd ../dep_root && sh ../download_deps.sh")
 
 
 
@@ -156,18 +156,18 @@ if(APPLE)
             )
 endif()
 
-execute_process(COMMAND date OUTPUT_VARIABLE BUILD_DATE)
-execute_process(COMMAND git describe --dirty --tags --abbrev=7 OUTPUT_VARIABLE BUILD_TAG)
-execute_process(COMMAND whoami OUTPUT_VARIABLE BUILD_WHOAMI)
+execute_process(COMMAND [==[bash -c "echo \"-DBUILD_DATE=$(date)\""]==] OUTPUT_VARIABLE BUILD_DATE)
+execute_process(COMMAND [==[bash -c 'echo "-DBUILD_DATE=$(git describe --dirty --tags --abbrev=7)"']==] OUTPUT_VARIABLE BUILD_TAG)
+execute_process(COMMAND [==[bash -c 'echo "-DBUILD_DATE=$(whoami)"']==] OUTPUT_VARIABLE BUILD_WHOAMI)
 
 set(INCLUDE_DIR /usr/local/include)
 include_directories (${INCLUDE_DIR})
 
 
 target_compile_options(palera1n
-        PUBLIC "-DBUILD_DATE=${BUILD_DATE}"
-        PUBLIC "-DBUILD_WHOAMI=${BUILD_WHOAMI}"
-        PUBLIC "-DBUILD_TAG=${BUILD_TAG}"
+        PUBLIC ${BUILD_DATE}
+        PUBLIC ${BUILD_WHOAMI}
+        PUBLIC ${BUILD_TAG}
         )
 
 
