@@ -1,4 +1,3 @@
-dep_root/**
 contrib/**
 !dep_root/.keep
 !contrib/.keep
