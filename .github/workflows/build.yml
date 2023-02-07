@@ -69,7 +69,8 @@ jobs:
           sudo install -m755 ldid_macosx_x86_64 /usr/local/bin/ldid
       - name: get submodules
         run: |
-          git submodule update
+          git pull --recurse-submodules
+          git submodule update --remote --recursive
 #      - name: Download dependencies (embedded binaries)
 #        run: |
 #          make -j5 download-deps
@@ -427,7 +428,8 @@ jobs:
           ln -sf $(pwd)/sysroot/usr/local/lib{,64}
       - name: get submodules
         run: |
-          git submodule update
+          git pull --recurse-submodules
+          git submodule update --remote --recursive
 #      - name: Download dependencies (embedded binaries)
 #        run: |
 #          make -j5 download-deps
