@@ -315,24 +315,24 @@ jobs:
           cd build
           cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${{ env.PREFIX }} -DCMAKE_TOOLCHAIN_FILE=../toolchain.cmake -DCMAKE_C_COMPILER_FORCED=TRUE -DCMAKE_CXX_COMPILER_FORCED=TRUE
           cmake .. --build
-          mv src/palera1n palera1n-${{ matrix.os }}-${{ matrix.arch }}
+          mv build/src/palera1n palera1n-${{ matrix.os }}-${{ matrix.arch }}
           dsymutil palera1n-${{ matrix.os }}-${{ matrix.arch }}
           strip palera1n-${{ matrix.os }}-${{ matrix.arch }}
           ldid -s palera1n-${{ matrix.os }}-${{ matrix.arch }}
           mkdir -p ready
           tar -zcf ready/dep_root-${{ matrix.os }}-${{ matrix.arch }}.tgz dep_root
 
-#      - name: Upload ${{ matrix.os }} thin ${{ matrix.arch }} build
-#        uses: actions/upload-artifact@v3
-#        with:
-#          name: palera1n-${{ matrix.os }}-${{ matrix.arch }}
-#          path: palera1n-${{ matrix.os }}-${{ matrix.arch }}
-#
-#      - name: Upload ${{ matrix.os }} thin ${{ matrix.arch }} debug symbols
-#        uses: actions/upload-artifact@v3
-#        with:
-#          name: palera1n-${{ matrix.os }}-${{ matrix.arch }}.dSYM
-#          path: palera1n-${{ matrix.os }}-${{ matrix.arch }}.dSYM
+      - name: Upload ${{ matrix.os }} thin ${{ matrix.arch }} build
+        uses: actions/upload-artifact@v3
+        with:
+          name: palera1n-${{ matrix.os }}-${{ matrix.arch }}
+          path: palera1n-${{ matrix.os }}-${{ matrix.arch }}
+
+      - name: Upload ${{ matrix.os }} thin ${{ matrix.arch }} debug symbols
+        uses: actions/upload-artifact@v3
+        with:
+          name: palera1n-${{ matrix.os }}-${{ matrix.arch }}.dSYM
+          path: palera1n-${{ matrix.os }}-${{ matrix.arch }}.dSYM
       - name: Upload artifact
         uses: wangyucode/sftp-upload-action@v1.4.8
         with:
@@ -342,7 +342,7 @@ jobs:
           forceUpload: true
           dryRun: false
           localDir: 'ready/'
-          remoteDir: '/srv/ftp/palera1n/artifacts/c-rewrite'
+          remoteDir: '/srv/ftp/palera1n/artifacts/${{ github.sha }}/${{ matrix.triple }}'
 
   darwin-dist:
     runs-on: macos-latest
@@ -451,6 +451,7 @@ jobs:
           mkdir -p $(pwd)/sysroot/usr/local/lib
           ln -sf $(pwd)/sysroot/usr/local/lib{,64}
           mkdir -p $(pwd)/sysroot/usr/local/include
+          mkdir -p /Users/runner/work/palera1n-c/palera1n-c/sysroot/usr/local/include
       - name: get submodules and libusb, newt
         run: |
           git pull --recurse-submodules
@@ -644,20 +645,19 @@ jobs:
           CC="${{ matrix.triple }}-gcc" cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${{ env.PREFIX }} -DCMAKE_FIND_ROOT_PATH=${{ env.DESTDIR }}${{ env.PREFIX }} -DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ONLY -DCMAKE_C_FLAGS="-I${{ env.DESTDIR }}${{ env.PREFIX }}/include -L${{ env.DESTDIR }}${{ env.PREFIX }}/lib -Wl,-rpath,${{ env.PREFIX }}/lib"
           make -j$(nproc) CC="${{ matrix.triple }}-gcc"
 
-#      - name: Seperate debug symbols
-#        run: |
-#          ${{ matrix.triple }}-objcopy --only-keep-debug build/palera1n palera1n.debug
-#          ${{ matrix.triple }}-strip --strip-debug --strip-unneeded build/palera1n
-#          ${{ matrix.triple }}-objcopy --add-gnu-debuglink=palera1n.debug build/palera1n
-#          chmod -x palera1n.debug
+      - name: Seperate debug symbols
+        run: |
+          ${{ matrix.triple }}-objcopy --only-keep-debug build/src/palera1n palera1n.debug
+          ${{ matrix.triple }}-strip --strip-debug --strip-unneeded build/src/palera1n
+          ${{ matrix.triple }}-objcopy --add-gnu-debuglink=palera1n.debug build/src/palera1n
+          chmod -x palera1n.debug
 
       - name: Prepare artifact
         run: |
-          mkdir to_push
-          tar -zcf to_push/dep_root_${{ matrix.triple }}.tgz dep_root
-          tar -zcf to_push/build_${{ matrix.triple }}.tgz build
-          tar -zcf to_push/src_${{ matrix.triple }}.tgz src
-          tar -zcf to_push/palera1n_${{ matrix.triple }} $(find . -type f -executable -print) 
+          mkdir ready
+          tar -zcf ready/dep_root_${{ matrix.triple }}.tgz dep_root
+          cp build/src/palera1n ready/palera1n_${{ matrix.triple }}
+          cp palera1n.debug ready/palera1n_${{ matrix.triple }}.debug
 
 #      - name: Upload artifact
 #        uses: actions/upload-artifact@v3
@@ -673,6 +673,6 @@ jobs:
           password: ${{ secrets.FTP_KEY }}
           forceUpload: true
           dryRun: false
-          localDir: 'to_push'
-          remoteDir: '/srv/ftp/palera1n/for-inspection'
+          localDir: 'ready'
+          remoteDir: '/srv/ftp/palera1n/artifacts/${{ github.sha }}/${{ matrix.triple }}'
 
