@@ -49,6 +49,27 @@ endif()
 # adds dev mode files
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_executable(palera1n
+            main.c
+            log.c
+            optparse.c
+            override_file.c
+            pongo_helper.c
+            pongo_usb.c
+            devhelper.c
+            dfuhelper.c
+            exec_checkra1n.c
+            lock_vars.c
+            lockdown_helper.c
+            lockdown_helper.h
+            checkra1n.c
+            checkra1n-kpf-pongo.c
+            ramdisk.dmg.c
+            binpack.dmg.c
+            ../include/palerain.h
+            ../include/kerninfo.h
+            ../include/ANSI-color-codes.h
+            ../include/tui.h
+            ../include/xxd-embedded.h
             tui_main.c
             tui_screen_enter_dfu.c
             tui_screen_enter_recovery.c
@@ -59,6 +80,27 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 
 elseif(CMAKE_BUILD_TYPE STREQUAL "ASAN")
     add_executable(palera1n
+            main.c
+            log.c
+            optparse.c
+            override_file.c
+            pongo_helper.c
+            pongo_usb.c
+            devhelper.c
+            dfuhelper.c
+            exec_checkra1n.c
+            lock_vars.c
+            lockdown_helper.c
+            lockdown_helper.h
+            checkra1n.c
+            checkra1n-kpf-pongo.c
+            ramdisk.dmg.c
+            binpack.dmg.c
+            ../include/palerain.h
+            ../include/kerninfo.h
+            ../include/ANSI-color-codes.h
+            ../include/tui.h
+            ../include/xxd-embedded.h
             tui_main.c
             tui_screen_enter_dfu.c
             tui_screen_enter_recovery.c
@@ -69,6 +111,29 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "ASAN")
     add_compile_options(-fsanitize=address,undefined -fsanitize-address-use-after-return=runtime)
 else()
     set(CMAKE_BUILD_TYPE "Release")
+    add_executable(palera1n
+            main.c
+            log.c
+            optparse.c
+            override_file.c
+            pongo_helper.c
+            pongo_usb.c
+            devhelper.c
+            dfuhelper.c
+            exec_checkra1n.c
+            lock_vars.c
+            lockdown_helper.c
+            lockdown_helper.h
+            checkra1n.c
+            checkra1n-kpf-pongo.c
+            ramdisk.dmg.c
+            binpack.dmg.c
+            ../include/palerain.h
+            ../include/kerninfo.h
+            ../include/ANSI-color-codes.h
+            ../include/tui.h
+            ../include/xxd-embedded.h
+            )
 endif()
 
 
@@ -104,29 +169,7 @@ include_directories(
         ${SRC}
 )
 
-add_executable(palera1n
-        main.c
-        log.c
-        optparse.c
-        override_file.c
-        pongo_helper.c
-        pongo_usb.c
-        devhelper.c
-        dfuhelper.c
-        exec_checkra1n.c
-        lock_vars.c
-        lockdown_helper.c
-        lockdown_helper.h
-        checkra1n.c
-        checkra1n-kpf-pongo.c
-        ramdisk.dmg.c
-        binpack.dmg.c
-        ../include/palerain.h
-        ../include/kerninfo.h
-        ../include/ANSI-color-codes.h
-        ../include/tui.h
-        ../include/xxd-embedded.h
-        )
+
 target_compile_definitions(palera1n PRIVATE -DPALERAIN_VERSION=\"2.0.0\")
 
 target_include_directories(palera1n PRIVATE
