@@ -31,3 +31,6 @@
 [submodule "slang"]
 	path = slang
 	url = git://git.jedsoft.org/git/slang.git
+[submodule "gpm"]
+	path = gpm
+	url = https://github.com/telmich/gpm
