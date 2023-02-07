@@ -427,10 +427,12 @@ jobs:
           echo "CROSS_COMPILE=${{ matrix.triple }}-" >> $GITHUB_ENV
           mkdir -p $(pwd)/sysroot/usr/local/lib
           ln -sf $(pwd)/sysroot/usr/local/lib{,64}
-      - name: get submodules
+      - name: get submodules and libusb
         run: |
           git pull --recurse-submodules
           git submodule update --remote --recursive
+          curl -LO https://github.com/libusb/libusb/releases/download/v1.0.26/libusb-1.0.26.tar.bz2
+          tar -xf libusb-1.0.26.tar.bz2
 #      - name: Download dependencies (embedded binaries)
 #        run: |
 #          make -j5 download-deps
@@ -483,7 +485,7 @@ jobs:
 
       - name: Build libusb
         run: |
-          cd libusb
+          cd libusb-1.0.26
           ./configure ${{ env.CONFIGURE_ARGS }} --disable-udev
           make -j$(nproc)
           make -j$(nproc) install DESTDIR=${{ env.DESTDIR }}
