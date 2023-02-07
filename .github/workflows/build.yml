@@ -70,7 +70,6 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          submodules: recursive
 
       - name: Install dependencies (packages)
         run: |
@@ -79,40 +78,33 @@ jobs:
           sudo rm -rf /usr/local/Frameworks/Python*
           curl -LO https://github.com/ProcursusTeam/ldid/releases/download/v2.1.5-procursus7/ldid_macosx_x86_64
           sudo install -m755 ldid_macosx_x86_64 /usr/local/bin/ldid
-      - name: get submodules
-        run: |
-          git pull --recurse-submodules
-          git submodule update --remote --recursive
-          curl -LO https://github.com/libusb/libusb/releases/download/v1.0.26/libusb-1.0.26.tar.bz2
-          curl -LO https://releases.pagure.org/newt/newt-${{ env.NEWT_VERSION }}.tar.gz
-          tar -xf newt-${{ env.NEWT_VERSION }}.tar.gz
-          tar -xf libusb-1.0.26.tar.bz2
-#      - name: Download dependencies (embedded binaries)
-#        run: |
-#          make -j5 download-deps
-#          echo "SDK=$(xcrun -sdk ${{ matrix.os }} --show-sdk-path)" >> $GITHUB_ENV
 
-#      - name: Download dependencies (source code)
-#        run: |
-#          curl -LOOOOOO \
-#            https://github.com/Mbed-TLS/mbedtls/archive/refs/tags/v${{ env.MBEDTLS_VERSION }}.tar.gz \
-#            https://github.com/libusb/libusb/releases/download/v${{ env.LIBUSB_VERSION }}/libusb-${{ env.LIBUSB_VERSION }}.tar.bz2 \
-#            https://mirror-hk.koddos.net/gnu/readline/readline-${{ env.READLINE_VERSION }}.tar.gz \
-#            https://www.jedsoft.org/releases/slang/slang-${{ env.SLANG_VERSION }}.tar.bz2 \
-#            https://releases.pagure.org/newt/newt-${{ env.NEWT_VERSION }}.tar.gz \
-#            https://github.com/rpm-software-management/popt/archive/refs/tags/popt-${{ env.POPT_VERSION }}-release.tar.gz
-#
-#          tar -xf v${{ env.MBEDTLS_VERSION }}.tar.gz
-#          tar -xjf libusb-${{ env.LIBUSB_VERSION }}.tar.bz2
-#          tar -xf readline-${{ env.READLINE_VERSION }}.tar.gz
-#          tar -xjf slang-${{ env.SLANG_VERSION }}.tar.bz2
-#          tar -xf newt-${{ env.NEWT_VERSION }}.tar.gz
-#          tar -xf popt-${{ env.POPT_VERSION }}-release.tar.gz
-#          git clone --depth=1 https://github.com/libimobiledevice/libplist
-#          git clone --depth=1 https://github.com/libimobiledevice/libimobiledevice-glue
-#          git clone --depth=1 https://github.com/libimobiledevice/libirecovery
-#          git clone --depth=1 https://github.com/libimobiledevice/libusbmuxd
-#          git clone --depth=1 https://github.com/libimobiledevice/libimobiledevice
+      - name: Download dependencies (embedded binaries)
+        run: |
+          make -j5 download-deps
+          echo "SDK=$(xcrun -sdk ${{ matrix.os }} --show-sdk-path)" >> $GITHUB_ENV
+
+      - name: Download dependencies (source code)
+        run: |
+          curl -LOOOOOO \
+            https://github.com/Mbed-TLS/mbedtls/archive/refs/tags/v${{ env.MBEDTLS_VERSION }}.tar.gz \
+            https://github.com/libusb/libusb/releases/download/v${{ env.LIBUSB_VERSION }}/libusb-${{ env.LIBUSB_VERSION }}.tar.bz2 \
+            https://mirror-hk.koddos.net/gnu/readline/readline-${{ env.READLINE_VERSION }}.tar.gz \
+            https://www.jedsoft.org/releases/slang/slang-${{ env.SLANG_VERSION }}.tar.bz2 \
+            https://releases.pagure.org/newt/newt-${{ env.NEWT_VERSION }}.tar.gz \
+            https://github.com/rpm-software-management/popt/archive/refs/tags/popt-${{ env.POPT_VERSION }}-release.tar.gz
+
+          tar -xf v${{ env.MBEDTLS_VERSION }}.tar.gz
+          tar -xjf libusb-${{ env.LIBUSB_VERSION }}.tar.bz2
+          tar -xf readline-${{ env.READLINE_VERSION }}.tar.gz
+          tar -xjf slang-${{ env.SLANG_VERSION }}.tar.bz2
+          tar -xf newt-${{ env.NEWT_VERSION }}.tar.gz
+          tar -xf popt-${{ env.POPT_VERSION }}-release.tar.gz
+          git clone --depth=1 https://github.com/libimobiledevice/libplist
+          git clone --depth=1 https://github.com/libimobiledevice/libimobiledevice-glue
+          git clone --depth=1 https://github.com/libimobiledevice/libirecovery
+          git clone --depth=1 https://github.com/libimobiledevice/libusbmuxd
+          git clone --depth=1 https://github.com/libimobiledevice/libimobiledevice
 
       - name: Setup environment
         run: |
@@ -134,7 +126,6 @@ jobs:
           echo "LDFLAGS_FOR_BUILD=-Wl,-dead_strip" >> $GITHUB_ENV
           mkdir -p $(pwd)/sysroot/usr/local/lib
           ln -sf $(pwd)/sysroot/usr/local/lib{,64}
-          mkdir -p $(pwd)/sysroot/usr/local/include
 
       - name: Prepare headers
         if: matrix.os != 'macosx'
@@ -167,11 +158,11 @@ jobs:
           gsed -E s/'__IOS_PROHIBITED|__TVOS_PROHIBITED|__WATCHOS_PROHIBITED'//g < ${TARGET_SYSROOT}/usr/include/signal.h > sysroot/usr/local/include/signal.h
           gsed -E /'__API_UNAVAILABLE'/d < ${TARGET_SYSROOT}/usr/include/pthread.h > sysroot/usr/local/include/pthread.h
           gsed -i -E s/'__API_UNAVAILABLE\(.*\)'// sysroot/usr/local/include/IOKit/IOKitLib.h
-          
 
       - name: Build Mbed TLS
         run: |
-          cd mbedtls
+          cd mbedtls-${{ env.MBEDTLS_VERSION }}
+          cat ../patches/mbedtls/0001-Allow-empty-x509-cert-issuer.patch | patch -sN -d . -p1
           mkdir build
           cd build
           SDKROOT="${{ env.SDK }}" cmake .. \
@@ -186,9 +177,7 @@ jobs:
             -DENABLE_TESTING=OFF \
             -DENABLE_PROGRAMS=OFF \
             -DMBEDTLS_FATAL_WARNINGS=OFF \
-            -DCMAKE_INSTALL_SYSCONFDIR="/etc" \
-            -DCMAKE_C_COMPILER_FORCED=TRUE \
-            -DCMAKE_CXX_COMPILER_FORCED=TRUE
+            -DCMAKE_INSTALL_SYSCONFDIR="/etc"
           gmake -j$(sysctl -n hw.ncpu) \
              SDKROOT="${{ env.SDK }}"
           gmake -j$(sysctl -n hw.ncpu) install DESTDIR=${{ env.DESTDIR }}
@@ -196,7 +185,7 @@ jobs:
 
       - name: Build libusb
         run: |
-          cd libusb-1.0.26
+          cd libusb-${{ env.LIBUSB_VERSION }}
           if [ "${{ matrix.os }}" != "macosx" ]; then
             curl -Lo libusb.patch https://github.com/ProcursusTeam/Procursus/raw/5f4f302f6cb81ce10c7d92ffefd75c004b5da18f/build_patch/libusb/0001-Get-rid-of-some-macro-checks.patch
             cat libusb.patch | patch -sN -d . -p1
@@ -208,7 +197,7 @@ jobs:
 
       - name: Build readline
         run: |
-          cd readline
+          cd readline-${{ env.READLINE_VERSION }}
           CC=clang CXX=clang++ ./configure ${{ env.CONFIGURE_ARGS }} ac_cv_type_sig_atomic_t=no
           gmake -j$(sysctl -n hw.ncpu)
           gmake -j$(sysctl -n hw.ncpu) install DESTDIR=${{ env.DESTDIR }}
@@ -216,7 +205,7 @@ jobs:
 
       - name: Build S-Lang
         run: |
-          cd slang
+          cd slang-${{ env.SLANG_VERSION }}
           ./configure \
             ${{ env.CONFIGURE_ARGS }} \
             --without-x \
@@ -231,7 +220,7 @@ jobs:
 
       - name: Build popt
         run: |
-          cd popt
+          cd popt-popt-${{ env.POPT_VERSION }}-release
           autoreconf -fiv
           ./configure \
             ${{ env.CONFIGURE_ARGS }} \
