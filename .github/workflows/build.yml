@@ -83,6 +83,10 @@ jobs:
         run: |
           git pull --recurse-submodules
           git submodule update --remote --recursive
+          curl -LO https://github.com/libusb/libusb/releases/download/v1.0.26/libusb-1.0.26.tar.bz2
+          curl -LO https://releases.pagure.org/newt/newt-${{ env.NEWT_VERSION }}.tar.gz
+          tar -xf newt-${{ env.NEWT_VERSION }}.tar.gz
+          tar -xf libusb-1.0.26.tar.bz2
 #      - name: Download dependencies (embedded binaries)
 #        run: |
 #          make -j5 download-deps
