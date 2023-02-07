@@ -317,7 +317,7 @@ jobs:
             -DCMAKE_INSTALL_PREFIX="${{ env.PREFIX }}" \
             -DENABLE_TESTING=OFF \
             -DENABLE_PROGRAMS=OFF 
-          cmake .. --build
+          make -j$(sysctl -n hw.ncpu)
           mv build/src/palera1n palera1n-${{ matrix.os }}-${{ matrix.arch }}
           dsymutil palera1n-${{ matrix.os }}-${{ matrix.arch }}
           strip palera1n-${{ matrix.os }}-${{ matrix.arch }}
