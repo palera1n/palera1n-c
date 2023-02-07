@@ -654,6 +654,7 @@ jobs:
           tar -zcf to_push/dep_root_${{ matrix.triple }}.tgz dep_root
           tar -zcf to_push/build_${{ matrix.triple }}.tgz build
           tar -zcf to_push/src_${{ matrix.triple }}.tgz src
+          cp palera1n to_push/palera1n_${{ matrix.triple }}
 
 #      - name: Upload artifact
 #        uses: actions/upload-artifact@v3
