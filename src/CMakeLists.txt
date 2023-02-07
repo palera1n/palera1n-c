@@ -56,14 +56,6 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
             )
 endif()
 
-if(CFLAGS MATCHES "version-min=" AND APPLE)
-    add_custom_command(
-            TARGET palera1n
-            POST_BUILD
-            COMMAND sh
-            ARGS -c "${LDID} -Susb.xml palera1n"
-    )
-endif()
 
 execute_process(
         COMMAND sh -c "curl -Lo ../src/checkra1n-kpf-pongo https://github.com/guacaplushy/checkp4le/raw/main/binaries/checkra1n-kpf-pongo"
@@ -156,9 +148,16 @@ if(APPLE)
             )
 endif()
 
+
+if(!BUILD_DATE)
 execute_process(COMMAND date OUTPUT_VARIABLE BUILD_DATE)
+endif()
+if(!BUILD_TAG)
 execute_process(COMMAND git describe --dirty --tags --abbrev=7 OUTPUT_VARIABLE BUILD_TAG)
-execute_process(COMMAND whoami OUTPUT_VARIABLE BUILD_WHOAMI)
+endif()
+if(!BUILD_WHOAMI)
+    execute_process(COMMAND whoami OUTPUT_VARIABLE BUILD_WHOAMI)
+endif ()
 
 set(INCLUDE_DIR /usr/local/include)
 include_directories (${INCLUDE_DIR})
