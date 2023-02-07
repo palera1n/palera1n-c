@@ -25,7 +25,6 @@
 [submodule "popt"]
 	path = popt
 	url = https://github.com/rpm-software-management/popt.git
-	branch = 883536515246cfcc6aa0991a99221ff6af554540
 [submodule "readline"]
 	path = readline
 	url = https://git.savannah.gnu.org/git/readline.git
