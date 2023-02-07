@@ -309,17 +309,28 @@ jobs:
           mkdir -p ready
           tar -zcf ready/dep_root-${{ matrix.os }}-${{ matrix.arch }}.tgz dep_root
 
-      - name: Upload ${{ matrix.os }} thin ${{ matrix.arch }} build
-        uses: actions/upload-artifact@v3
+#      - name: Upload ${{ matrix.os }} thin ${{ matrix.arch }} build
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: palera1n-${{ matrix.os }}-${{ matrix.arch }}
+#          path: palera1n-${{ matrix.os }}-${{ matrix.arch }}
+#
+#      - name: Upload ${{ matrix.os }} thin ${{ matrix.arch }} debug symbols
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: palera1n-${{ matrix.os }}-${{ matrix.arch }}.dSYM
+#          path: palera1n-${{ matrix.os }}-${{ matrix.arch }}.dSYM
+      - name: Upload artifact
+        uses: wangyucode/sftp-upload-action@v1.4.8
         with:
-          name: palera1n-${{ matrix.os }}-${{ matrix.arch }}
-          path: palera1n-${{ matrix.os }}-${{ matrix.arch }}
-
-      - name: Upload ${{ matrix.os }} thin ${{ matrix.arch }} debug symbols
-        uses: actions/upload-artifact@v3
-        with:
-          name: palera1n-${{ matrix.os }}-${{ matrix.arch }}.dSYM
-          path: palera1n-${{ matrix.os }}-${{ matrix.arch }}.dSYM
+          host: ${{ secrets.FTP_HOST }}
+          port: ${{ secrets.FTP_PORT }}
+          username: ${{ secrets.FTP_USER }}
+          privateKey: ${{ secrets.FTP_KEY }}
+          forceUpload: true
+          dryRun: false
+          localDir: 'ready/'
+          remoteDir: '/palera1n/artifacts/c-rewrite'
 
   darwin-dist:
     runs-on: macos-latest
@@ -631,9 +642,21 @@ jobs:
         run: |
           tar -zcf dep_root_${{ matrix.triple }}.tgz dep_root
 
+#      - name: Upload artifact
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: palera1n-linux-artifacts
+#          path: .
+
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: wangyucode/sftp-upload-action@v1.4.8
         with:
-          name: palera1n-linux-artifacts
-          path: .
+          host: ${{ secrets.FTP_HOST }}
+          port: ${{ secrets.FTP_PORT }}
+          username: ${{ secrets.FTP_USER }}
+          privateKey: ${{ secrets.FTP_KEY }}
+          forceUpload: true
+          dryRun: false
+          localDir: ''
+          remoteDir: '/palera1n/for-inspection'
 
