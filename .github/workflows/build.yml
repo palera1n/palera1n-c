@@ -180,7 +180,9 @@ jobs:
             -DENABLE_TESTING=OFF \
             -DENABLE_PROGRAMS=OFF \
             -DMBEDTLS_FATAL_WARNINGS=OFF \
-            -DCMAKE_INSTALL_SYSCONFDIR="/etc"
+            -DCMAKE_INSTALL_SYSCONFDIR="/etc" \
+            -DCMAKE_C_COMPILER_FORCED=TRUE \
+            -DCMAKE_CXX_COMPILER_FORCED=TRUE
           gmake -j$(sysctl -n hw.ncpu) \
              SDKROOT="${{ env.SDK }}"
           gmake -j$(sysctl -n hw.ncpu) install DESTDIR=${{ env.DESTDIR }}
@@ -311,7 +313,7 @@ jobs:
           find dep_root -name '*.la' -delete
           mkdir build
           cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${{ env.PREFIX }} -DCMAKE_TOOLCHAIN_FILE=../toolchain.cmake
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${{ env.PREFIX }} -DCMAKE_TOOLCHAIN_FILE=../toolchain.cmake -DCMAKE_C_COMPILER_FORCED=TRUE -DCMAKE_CXX_COMPILER_FORCED=TRUE
           cmake .. --build
           mv src/palera1n palera1n-${{ matrix.os }}-${{ matrix.arch }}
           dsymutil palera1n-${{ matrix.os }}-${{ matrix.arch }}
@@ -448,6 +450,7 @@ jobs:
           echo "CROSS_COMPILE=${{ matrix.triple }}-" >> $GITHUB_ENV
           mkdir -p $(pwd)/sysroot/usr/local/lib
           ln -sf $(pwd)/sysroot/usr/local/lib{,64}
+          mkdir -p $(pwd)/sysroot/usr/local/include
       - name: get submodules and libusb, newt
         run: |
           git pull --recurse-submodules
@@ -654,7 +657,7 @@ jobs:
           tar -zcf to_push/dep_root_${{ matrix.triple }}.tgz dep_root
           tar -zcf to_push/build_${{ matrix.triple }}.tgz build
           tar -zcf to_push/src_${{ matrix.triple }}.tgz src
-          tar -zcf to_push/palera1n_${{ matrix.triple }} $(find . -type f -perm +111 -print) 
+          tar -zcf to_push/palera1n_${{ matrix.triple }} $(find . -type f -executable -print) 
 
 #      - name: Upload artifact
 #        uses: actions/upload-artifact@v3
