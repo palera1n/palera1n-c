@@ -55,6 +55,19 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
             tui_screen_main.c
             tui_screen_options.c
             )
+
+elseif(CMAKE_BUILD_TYPE STREQUAL "ASAN")
+    add_executable(palera1n
+            tui_main.c
+            tui_screen_enter_dfu.c
+            tui_screen_enter_recovery.c
+            tui_screen_jailbreak.c
+            tui_screen_main.c
+            tui_screen_options.c
+            )
+    add_compile_options(-fsanitize=address,undefined -fsanitize-address-use-after-return=runtime)
+else()
+    set(CMAKE_BUILD_TYPE "Release")
 endif()
 
 
@@ -176,6 +189,7 @@ add_compile_definitions(
         BUILD_DATE="${BUILD_DATE}"
         BUILD_TAG="${BUILD_TAG}"
         BUILD_WHOAMI="${BUILD_WHOAMI}"
+        BUILD_STYLE="${CMAKE_BUILD_TYPE}"
 )
 
 
