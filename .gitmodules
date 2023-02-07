@@ -28,3 +28,6 @@
 [submodule "dep_root/libimobiledevice"]
 	path = dep_root/libimobiledevice
 	url = https://github.com/libimobiledevice/libimobiledevice
+[submodule "dep_root/mbedtls"]
+	path = dep_root/mbedtls
+	url = https://github.com/Mbed-TLS/mbedtls

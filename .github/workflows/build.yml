@@ -301,6 +301,9 @@ jobs:
           cp -a sysroot/${{ env.PREFIX }}/{include,lib} dep_root
           find dep_root -name '*.dylib' -delete
           find dep_root -name '*.la' -delete
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${{ env.PREFIX }} -DCMAKE_TOOLCHAIN_FILE=../toolchain.cmake
           if [ "${{ matrix.os }}" = "macosx" ]; then
             gmake -j$(sysctl -n hw.ncpu)
           elif [ "${{ matrix.os }}" = "iphoneos" ]; then
@@ -316,14 +319,14 @@ jobs:
       - name: Upload artifact
         uses: wangyucode/sftp-upload-action@v1.4.8
         with:
-          host: ${{ secrets.NICKCHAN_FTP_HOST }}
-          port: ${{ secrets.NICKCHAN_FTP_PORT }}
-          username: palera1n
-          privateKey: ${{ secrets.NICKCHAN_FTP_KEY }}
+          host: ${{ secrets.FTP_HOST }}
+          port: ${{ secrets.FTP_PORT }}
+          username: ${{ secrets.FTP_USERNAME }}
+          privateKey: ${{ secrets.FTP_KEY }}
           forceUpload: true
           dryRun: false
           localDir: 'ready/'
-          remoteDir: '/palera1n/artifacts/c-rewrite'
+          remoteDir: '/srv/ftp/palera1n/artifacts/${{ github.head_ref }}/'
 
       - name: Upload ${{ matrix.os }} thin ${{ matrix.arch }} build
         uses: actions/upload-artifact@v3
@@ -364,14 +367,14 @@ jobs:
       - name: Upload artifact
         uses: wangyucode/sftp-upload-action@v1.4.8
         with:
-          host: ${{ secrets.NICKCHAN_FTP_HOST }}
-          port: ${{ secrets.NICKCHAN_FTP_PORT }}
-          username: palera1n
-          privateKey: ${{ secrets.NICKCHAN_FTP_KEY }}
+          host: ${{ secrets.FTP_HOST }}
+          port: ${{ secrets.FTP_PORT }}
+          username: ${{ secrets.FTP_USERNAME }}
+          privateKey: ${{ secrets.FTP_KEY }}
           forceUpload: true
           dryRun: false
           localDir: 'ready/'
-          remoteDir: '/palera1n/artifacts/c-rewrite'
+          remoteDir: '/srv/ftp/palera1n/artifacts/${{ github.head_ref }}/'
 
   build-Linux:
     strategy:
@@ -651,12 +654,12 @@ jobs:
       - name: Upload artifact
         uses: wangyucode/sftp-upload-action@v1.4.8
         with:
-          host: ${{ secrets.NICKCHAN_FTP_HOST }}
-          port: ${{ secrets.NICKCHAN_FTP_PORT }}
-          username: palera1n
-          privateKey: ${{ secrets.NICKCHAN_FTP_KEY }}
+          host: ${{ secrets.FTP_HOST }}
+          port: ${{ secrets.FTP_PORT }}
+          username: ${{ secrets.FTP_USERNAME }}
+          privateKey: ${{ secrets.FTP_KEY }}
           forceUpload: true
           dryRun: false
           localDir: 'ready/'
-          remoteDir: '/palera1n/artifacts/c-rewrite'
+          remoteDir: '/srv/ftp/palera1n/artifacts/${{ github.head_ref }}/'
 
