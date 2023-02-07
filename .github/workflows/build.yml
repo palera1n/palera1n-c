@@ -130,6 +130,7 @@ jobs:
           echo "LDFLAGS_FOR_BUILD=-Wl,-dead_strip" >> $GITHUB_ENV
           mkdir -p $(pwd)/sysroot/usr/local/lib
           ln -sf $(pwd)/sysroot/usr/local/lib{,64}
+          mkdir -p $(pwd)/sysroot/usr/local/include
 
       - name: Prepare headers
         if: matrix.os != 'macosx'
@@ -162,7 +163,7 @@ jobs:
           gsed -E s/'__IOS_PROHIBITED|__TVOS_PROHIBITED|__WATCHOS_PROHIBITED'//g < ${TARGET_SYSROOT}/usr/include/signal.h > sysroot/usr/local/include/signal.h
           gsed -E /'__API_UNAVAILABLE'/d < ${TARGET_SYSROOT}/usr/include/pthread.h > sysroot/usr/local/include/pthread.h
           gsed -i -E s/'__API_UNAVAILABLE\(.*\)'// sysroot/usr/local/include/IOKit/IOKitLib.h
-          mkdir -p /Users/runner/work/palera1n-c/palera1n-c/sysroot/usr/local/include
+          
 
       - name: Build Mbed TLS
         run: |
