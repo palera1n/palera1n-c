@@ -527,6 +527,7 @@ jobs:
       - name: Build popt
         run: |
           cd popt
+          git checkout 28a9151
           autoreconf -fiv
           ./configure \
             ${{ env.CONFIGURE_ARGS }} \
