@@ -543,7 +543,7 @@ jobs:
 
       - name: Build newt
         run: |
-          cd newt
+          cd newt-${{ env.NEWT_VERSION }}
           ./configure \
             ${{ env.CONFIGURE_ARGS }} \
             --with-readline=gnu \
