@@ -1,33 +1,30 @@
-[submodule "dep_root/readline"]
-	path = dep_root/readline
-	url = https://git.savannah.gnu.org/git/readline.git
-[submodule "dep_root/slang"]
-	path = dep_root/slang
-	url = git://git.jedsoft.org/git/slang.git
-[submodule "dep_root/newt"]
-	path = dep_root/newt
-	url = https://pagure.io/newt.git
-[submodule "dep_root/libusb"]
-	path = dep_root/libusb
-	url = https://github.com/libusb/libusb.git
-[submodule "dep_root/popt"]
-	path = dep_root/popt
-	url = https://github.com/rpm-software-management/popt.git
-[submodule "dep_root/libplist"]
-	path = dep_root/libplist
-	url = https://github.com/libimobiledevice/libplist
-[submodule "dep_root/libimobiledevice-glue"]
-	path = dep_root/libimobiledevice-glue
-	url = https://github.com/libimobiledevice/libimobiledevice-glue
-[submodule "dep_root/libirecovery"]
-	path = dep_root/libirecovery
-	url = https://github.com/libimobiledevice/libirecovery
-[submodule "dep_root/libusbmuxd"]
-	path = dep_root/libusbmuxd
-	url = https://github.com/libimobiledevice/libusbmuxd
-[submodule "dep_root/libimobiledevice"]
-	path = dep_root/libimobiledevice
+[submodule "libimobiledevice"]
+	path = libimobiledevice
 	url = https://github.com/libimobiledevice/libimobiledevice
-[submodule "dep_root/mbedtls"]
-	path = dep_root/mbedtls
+[submodule "libimobiledevice-glue"]
+	path = libimobiledevice-glue
+	url = https://github.com/libimobiledevice/libimobiledevice-glue
+[submodule "libirecovery"]
+	path = libirecovery
+	url = https://github.com/libimobiledevice/libirecovery
+[submodule "libplist"]
+	path = libplist
+	url = https://github.com/libimobiledevice/libplist
+[submodule "libusb"]
+	path = libusb
+	url = https://github.com/libusb/libusb.git
+[submodule "libusbmuxd"]
+	path = libusbmuxd
+	url = https://github.com/libimobiledevice/libusbmuxd
+[submodule "mbedtls"]
+	path = mbedtls
 	url = https://github.com/Mbed-TLS/mbedtls
+[submodule "newt"]
+	path = newt
+	url = https://pagure.io/newt.git
+[submodule "popt"]
+	path = popt
+	url = https://github.com/rpm-software-management/popt.git
+[submodule "readline"]
+	path = readline
+	url = https://git.savannah.gnu.org/git/readline.git
