@@ -84,18 +84,18 @@ execute_process(
 )
 
 execute_process(
-        COMMAND sh -c "xxd -iC ../src/checkra1n-kpf-pongo > ../src/checkra1n-kpf-pongo.c"
+        COMMAND sh -c "cd ../src/ && xxd -iC checkra1n-kpf-pongo > ../src/checkra1n-kpf-pongo.c"
 )
 
 execute_process(
-        COMMAND sh -c "xxd -iC ../src/ramdisk.dmg > ../src/ramdisk.dmg.c"
+        COMMAND sh -c "cd ../src/ && xxd -iC ramdisk.dmg > ../src/ramdisk.dmg.c"
 )
 execute_process(
-        COMMAND sh -c "xxd -iC ../src/binpack.dmg > ../src/binpack.dmg.c"
+        COMMAND sh -c "cd ../src/ && xxd -iC binpack.dmg > ../src/binpack.dmg.c"
 )
 
 execute_process(
-        COMMAND sh -c "xxd -iC ../src/checkra1n > ../src/checkra1n.c"
+        COMMAND sh -c "cd ../src/ && xxd -iC checkra1n > ../src/checkra1n.c"
 )
 
 include_directories(
