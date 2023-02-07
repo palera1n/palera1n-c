@@ -206,7 +206,7 @@ else()
             )
 endif()
 if(APPLE)
-    target_link_libraries(palera1n
+    add_compile_options(palera1n
             -framework CoreFoundation
             -framework SystemConfiguration
             -framework IOKit
