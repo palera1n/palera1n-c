@@ -1,7 +1,8 @@
 #execute_process(COMMAND sh -c "cd ../dep_root && sh ../download_deps.sh")
 
 
-
+set(SRC ${CMAKE_CURRENT_SOURCE_DIR})
+set(DEP ${SRC}/dep_root)
 
 
 if(${CHECKRA1N_VERSION})
@@ -84,7 +85,10 @@ execute_process(
         COMMAND sh -c "xxd -iC ../src/checkra1n > ../src/checkra1n.c"
 )
 
-
+include_directories(
+        ../include
+        ${SRC}
+)
 
 add_executable(palera1n
         main.c
@@ -103,6 +107,11 @@ add_executable(palera1n
         checkra1n-kpf-pongo.c
         ramdisk.dmg.c
         binpack.dmg.c
+        ../include/palerain.h
+        ../include/kerninfo.h
+        ../include/ANSI-color-codes.h
+        ../include/tui.h
+        ../include/xxd-embedded.h
         )
 target_compile_definitions(palera1n PRIVATE -DPALERAIN_VERSION=\"2.0.0\")
 
