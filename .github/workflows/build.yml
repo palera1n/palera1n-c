@@ -517,7 +517,6 @@ jobs:
       - name: Build GPM
         run: |
           cd gpm
-          cat ../patches/gpm/*.patch | patch -sN -d . -p1
           ./autogen.sh
           ./configure \
             ${{ env.CONFIGURE_ARGS }}
