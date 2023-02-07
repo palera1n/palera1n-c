@@ -157,8 +157,8 @@ if(APPLE)
 endif()
 
 execute_process(COMMAND [==[bash -c "echo -DBUILD_DATE=$(date)"]==] OUTPUT_VARIABLE BUILD_DATE)
-execute_process(COMMAND [==[bash -c 'echo -DBUILD_DATE=$(git describe --dirty --tags --abbrev=7)']==] OUTPUT_VARIABLE BUILD_TAG)
-execute_process(COMMAND [==[bash -c 'echo -DBUILD_DATE=$(whoami)']==] OUTPUT_VARIABLE BUILD_WHOAMI)
+execute_process(COMMAND [==[bash -c 'echo -DBUILD_TAG=$(git describe --dirty --tags --abbrev=7)']==] OUTPUT_VARIABLE BUILD_TAG)
+execute_process(COMMAND [==[bash -c 'echo -DBUILD_WHOAMI=$(whoami)']==] OUTPUT_VARIABLE BUILD_WHOAMI)
 
 set(INCLUDE_DIR /usr/local/include)
 include_directories (${INCLUDE_DIR})
