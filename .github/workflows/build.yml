@@ -308,7 +308,15 @@ jobs:
           find dep_root -name '*.la' -delete
           mkdir build
           cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release -DSTATIC=1 -DDEP=../dep_root -DSRC=../src
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DSTATIC=1 -DDEP=../dep_root -DSRC=../src -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_CROSSCOMPILING=true \
+            -DCMAKE_SYSTEM_NAME=Darwin \
+            -DCMAKE_C_COMPILER="${{ env.CC }}" \
+            -DCMAKE_C_FLAGS='${{ env.CFLAGS }}' \
+            -DCMAKE_FIND_ROOT_PATH="${{ env.DESTDIR }}" \
+            -DCMAKE_INSTALL_PREFIX="${{ env.PREFIX }}" \
+            -DENABLE_TESTING=OFF \
+            -DENABLE_PROGRAMS=OFF \
           cmake .. --build
           mv build/src/palera1n palera1n-${{ matrix.os }}-${{ matrix.arch }}
           dsymutil palera1n-${{ matrix.os }}-${{ matrix.arch }}
