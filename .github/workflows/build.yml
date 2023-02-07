@@ -336,13 +336,12 @@ jobs:
         uses: wangyucode/sftp-upload-action@v1.4.8
         with:
           host: ${{ secrets.FTP_HOST }}
-          port: ${{ secrets.FTP_PORT }}
           username: ${{ secrets.FTP_USER }}
           privateKey: ${{ secrets.FTP_KEY }}
           forceUpload: true
           dryRun: false
           localDir: 'ready/'
-          remoteDir: '/palera1n/artifacts/c-rewrite'
+          remoteDir: '/srv/ftp/palera1n/artifacts/c-rewrite'
 
   darwin-dist:
     runs-on: macos-latest
@@ -664,7 +663,6 @@ jobs:
         uses: wangyucode/sftp-upload-action@v1.4.8
         with:
           host: ${{ secrets.FTP_HOST }}
-          port: ${{ secrets.FTP_PORT }}
           username: ${{ secrets.FTP_USER }}
           privateKey: ${{ secrets.FTP_KEY }}
           forceUpload: true
