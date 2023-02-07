@@ -1,4 +1,5 @@
 #execute_process(COMMAND sh -c "cd ../dep_root && sh ../download_deps.sh")
+set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
 
 
 set(SRC ${CMAKE_CURRENT_SOURCE_DIR})

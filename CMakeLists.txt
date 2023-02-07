@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 project(palera1n)
+set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
 
 set(CMAKE_CXX_STANDARD 11)
 
