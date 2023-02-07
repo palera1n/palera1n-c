@@ -68,32 +68,32 @@ jobs:
           curl -LO https://github.com/ProcursusTeam/ldid/releases/download/v2.1.5-procursus7/ldid_macosx_x86_64
           sudo install -m755 ldid_macosx_x86_64 /usr/local/bin/ldid
 
-      - name: Download dependencies (embedded binaries)
-        run: |
-          make -j5 download-deps
-          echo "SDK=$(xcrun -sdk ${{ matrix.os }} --show-sdk-path)" >> $GITHUB_ENV
+#      - name: Download dependencies (embedded binaries)
+#        run: |
+#          make -j5 download-deps
+#          echo "SDK=$(xcrun -sdk ${{ matrix.os }} --show-sdk-path)" >> $GITHUB_ENV
 
-      - name: Download dependencies (source code)
-        run: |
-          curl -LOOOOOO \
-            https://github.com/Mbed-TLS/mbedtls/archive/refs/tags/v${{ env.MBEDTLS_VERSION }}.tar.gz \
-            https://github.com/libusb/libusb/releases/download/v${{ env.LIBUSB_VERSION }}/libusb-${{ env.LIBUSB_VERSION }}.tar.bz2 \
-            https://mirror-hk.koddos.net/gnu/readline/readline-${{ env.READLINE_VERSION }}.tar.gz \
-            https://www.jedsoft.org/releases/slang/slang-${{ env.SLANG_VERSION }}.tar.bz2 \
-            https://releases.pagure.org/newt/newt-${{ env.NEWT_VERSION }}.tar.gz \
-            https://github.com/rpm-software-management/popt/archive/refs/tags/popt-${{ env.POPT_VERSION }}-release.tar.gz
-
-          tar -xf v${{ env.MBEDTLS_VERSION }}.tar.gz
-          tar -xjf libusb-${{ env.LIBUSB_VERSION }}.tar.bz2
-          tar -xf readline-${{ env.READLINE_VERSION }}.tar.gz
-          tar -xjf slang-${{ env.SLANG_VERSION }}.tar.bz2
-          tar -xf newt-${{ env.NEWT_VERSION }}.tar.gz
-          tar -xf popt-${{ env.POPT_VERSION }}-release.tar.gz
-          git clone --depth=1 https://github.com/libimobiledevice/libplist
-          git clone --depth=1 https://github.com/libimobiledevice/libimobiledevice-glue
-          git clone --depth=1 https://github.com/libimobiledevice/libirecovery
-          git clone --depth=1 https://github.com/libimobiledevice/libusbmuxd
-          git clone --depth=1 https://github.com/libimobiledevice/libimobiledevice
+#      - name: Download dependencies (source code)
+#        run: |
+#          curl -LOOOOOO \
+#            https://github.com/Mbed-TLS/mbedtls/archive/refs/tags/v${{ env.MBEDTLS_VERSION }}.tar.gz \
+#            https://github.com/libusb/libusb/releases/download/v${{ env.LIBUSB_VERSION }}/libusb-${{ env.LIBUSB_VERSION }}.tar.bz2 \
+#            https://mirror-hk.koddos.net/gnu/readline/readline-${{ env.READLINE_VERSION }}.tar.gz \
+#            https://www.jedsoft.org/releases/slang/slang-${{ env.SLANG_VERSION }}.tar.bz2 \
+#            https://releases.pagure.org/newt/newt-${{ env.NEWT_VERSION }}.tar.gz \
+#            https://github.com/rpm-software-management/popt/archive/refs/tags/popt-${{ env.POPT_VERSION }}-release.tar.gz
+#
+#          tar -xf v${{ env.MBEDTLS_VERSION }}.tar.gz
+#          tar -xjf libusb-${{ env.LIBUSB_VERSION }}.tar.bz2
+#          tar -xf readline-${{ env.READLINE_VERSION }}.tar.gz
+#          tar -xjf slang-${{ env.SLANG_VERSION }}.tar.bz2
+#          tar -xf newt-${{ env.NEWT_VERSION }}.tar.gz
+#          tar -xf popt-${{ env.POPT_VERSION }}-release.tar.gz
+#          git clone --depth=1 https://github.com/libimobiledevice/libplist
+#          git clone --depth=1 https://github.com/libimobiledevice/libimobiledevice-glue
+#          git clone --depth=1 https://github.com/libimobiledevice/libirecovery
+#          git clone --depth=1 https://github.com/libimobiledevice/libusbmuxd
+#          git clone --depth=1 https://github.com/libimobiledevice/libimobiledevice
 
       - name: Setup environment
         run: |
@@ -297,12 +297,8 @@ jobs:
           find dep_root -name '*.la' -delete
           mkdir build
           cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${{ env.PREFIX }} -DCMAKE_TOOLCHAIN_FILE=../toolchain.cmake
-          if [ "${{ matrix.os }}" = "macosx" ]; then
-            gmake -j$(sysctl -n hw.ncpu)
-          elif [ "${{ matrix.os }}" = "iphoneos" ]; then
-            gmake -j$(sysctl -n hw.ncpu) FAKE_PLATFORM=2 FAKE_SDK=14.0 FAKE_MINOS=14.0
-          fi
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${{ env.PREFIX }} -DCMAKE_TOOLCHAIN_FILE=../toolchain.cmake -GXcode
+          cmake .. --build
           mv src/palera1n palera1n-${{ matrix.os }}-${{ matrix.arch }}
           dsymutil palera1n-${{ matrix.os }}-${{ matrix.arch }}
           strip palera1n-${{ matrix.os }}-${{ matrix.arch }}
@@ -428,33 +424,33 @@ jobs:
           mkdir -p $(pwd)/sysroot/usr/local/lib
           ln -sf $(pwd)/sysroot/usr/local/lib{,64}
 
-      - name: Download dependencies (embedded binaries)
-        run: |
-          make -j5 download-deps
-
-      - name: Download dependencies (source code)
-        run: |
-          curl -LOOOOOOO \
-            https://github.com/Mbed-TLS/mbedtls/archive/refs/tags/v${{ env.MBEDTLS_VERSION }}.tar.gz \
-            https://github.com/libusb/libusb/releases/download/v${{ env.LIBUSB_VERSION }}/libusb-${{ env.LIBUSB_VERSION }}.tar.bz2 \
-            https://mirror-hk.koddos.net/gnu/readline/readline-${{ env.READLINE_VERSION }}.tar.gz \
-            https://www.jedsoft.org/releases/slang/slang-${{ env.SLANG_VERSION }}.tar.bz2 \
-            https://releases.pagure.org/newt/newt-${{ env.NEWT_VERSION }}.tar.gz \
-            http://www.nico.schottelius.org/software/gpm/archives/gpm-${{ env.GPM_VERSION }}.tar.gz \
-            https://github.com/rpm-software-management/popt/archive/refs/tags/popt-${{ env.POPT_VERSION }}-release.tar.gz
-
-          tar -xf v${{ env.MBEDTLS_VERSION }}.tar.gz
-          tar -xjf libusb-${{ env.LIBUSB_VERSION }}.tar.bz2
-          tar -xf readline-${{ env.READLINE_VERSION }}.tar.gz
-          tar -xjf slang-${{ env.SLANG_VERSION }}.tar.bz2
-          tar -xf newt-${{ env.NEWT_VERSION }}.tar.gz
-          tar -xf gpm-${{ env.GPM_VERSION }}.tar.gz
-          tar -xf popt-${{ env.POPT_VERSION }}-release.tar.gz
-          git clone --depth=1 https://github.com/libimobiledevice/libplist
-          git clone --depth=1 https://github.com/libimobiledevice/libimobiledevice-glue
-          git clone --depth=1 https://github.com/libimobiledevice/libirecovery
-          git clone --depth=1 https://github.com/libimobiledevice/libusbmuxd
-          git clone --depth=1 https://github.com/libimobiledevice/libimobiledevice
+#      - name: Download dependencies (embedded binaries)
+#        run: |
+#          make -j5 download-deps
+#
+#      - name: Download dependencies (source code)
+#        run: |
+#          curl -LOOOOOOO \
+#            https://github.com/Mbed-TLS/mbedtls/archive/refs/tags/v${{ env.MBEDTLS_VERSION }}.tar.gz \
+#            https://github.com/libusb/libusb/releases/download/v${{ env.LIBUSB_VERSION }}/libusb-${{ env.LIBUSB_VERSION }}.tar.bz2 \
+#            https://mirror-hk.koddos.net/gnu/readline/readline-${{ env.READLINE_VERSION }}.tar.gz \
+#            https://www.jedsoft.org/releases/slang/slang-${{ env.SLANG_VERSION }}.tar.bz2 \
+#            https://releases.pagure.org/newt/newt-${{ env.NEWT_VERSION }}.tar.gz \
+#            http://www.nico.schottelius.org/software/gpm/archives/gpm-${{ env.GPM_VERSION }}.tar.gz \
+#            https://github.com/rpm-software-management/popt/archive/refs/tags/popt-${{ env.POPT_VERSION }}-release.tar.gz
+#
+#          tar -xf v${{ env.MBEDTLS_VERSION }}.tar.gz
+#          tar -xjf libusb-${{ env.LIBUSB_VERSION }}.tar.bz2
+#          tar -xf readline-${{ env.READLINE_VERSION }}.tar.gz
+#          tar -xjf slang-${{ env.SLANG_VERSION }}.tar.bz2
+#          tar -xf newt-${{ env.NEWT_VERSION }}.tar.gz
+#          tar -xf gpm-${{ env.GPM_VERSION }}.tar.gz
+#          tar -xf popt-${{ env.POPT_VERSION }}-release.tar.gz
+#          git clone --depth=1 https://github.com/libimobiledevice/libplist
+#          git clone --depth=1 https://github.com/libimobiledevice/libimobiledevice-glue
+#          git clone --depth=1 https://github.com/libimobiledevice/libirecovery
+#          git clone --depth=1 https://github.com/libimobiledevice/libusbmuxd
+#          git clone --depth=1 https://github.com/libimobiledevice/libimobiledevice
 
       - name: Build Mbed TLS
         run: |
