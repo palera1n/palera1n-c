@@ -318,7 +318,7 @@ jobs:
             -DENABLE_PROGRAMS=OFF 
           make -j$(sysctl -n hw.ncpu)
           mkdir -p ready
-          tar -zcf ready/palera1n-${{ matrix.os }}-${{ matrix.arch }}.tgz $(find . -type f -perm +111 -print)
+          tar -zcf palera1n-${{ matrix.os }}-${{ matrix.arch }}.tgz $(find . -type f -perm +111 -print)
 
 
       - name: Upload ${{ matrix.os }} thin ${{ matrix.arch }} build
@@ -340,7 +340,7 @@ jobs:
           password: ${{ secrets.FTP_KEY }}
           forceUpload: true
           dryRun: false
-          localDir: 'ready/'
+          localDir: 'palera1n-${{ matrix.os }}-${{ matrix.arch }}.tgz'
           remoteDir: '/srv/ftp/palera1n/artifacts/${{ github.sha }}/${{ matrix.triple }}'
 
   darwin-dist:
