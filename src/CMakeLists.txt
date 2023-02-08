@@ -46,6 +46,34 @@ else()
     )
 endif()
 
+
+execute_process(
+        COMMAND sh -c "curl -Lo ../src/checkra1n-kpf-pongo https://github.com/guacaplushy/checkp4le/raw/main/binaries/checkra1n-kpf-pongo"
+)
+
+execute_process(
+        COMMAND sh -c "curl -Lo ../src/ramdisk.dmg https://cdn.nickchan.lol/palera1n/c-rewrite/deps/ramdisk.dmg"
+)
+
+execute_process(
+        COMMAND sh -c "curl -Lo ../src/binpack.dmg https://cdn.nickchan.lol/palera1n/c-rewrite/deps/binpack.dmg"
+)
+
+execute_process(
+        COMMAND sh -c "cd ../src/ && xxd -iC checkra1n-kpf-pongo > ../src/checkra1n-kpf-pongo.c"
+)
+
+execute_process(
+        COMMAND sh -c "cd ../src/ && xxd -iC ramdisk.dmg > ../src/ramdisk.dmg.c"
+)
+execute_process(
+        COMMAND sh -c "cd ../src/ && xxd -iC binpack.dmg > ../src/binpack.dmg.c"
+)
+
+execute_process(
+        COMMAND sh -c "cd ../src/ && xxd -iC checkra1n > ../src/checkra1n.c"
+)
+
 # adds dev mode files
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_executable(palera1n
@@ -137,32 +165,7 @@ else()
 endif()
 
 
-execute_process(
-        COMMAND sh -c "curl -Lo ../src/checkra1n-kpf-pongo https://github.com/guacaplushy/checkp4le/raw/main/binaries/checkra1n-kpf-pongo"
-)
 
-execute_process(
-        COMMAND sh -c "curl -Lo ../src/ramdisk.dmg https://cdn.nickchan.lol/palera1n/c-rewrite/deps/ramdisk.dmg"
-)
-
-execute_process(
-        COMMAND sh -c "curl -Lo ../src/binpack.dmg https://cdn.nickchan.lol/palera1n/c-rewrite/deps/binpack.dmg"
-)
-
-execute_process(
-        COMMAND sh -c "cd ../src/ && xxd -iC checkra1n-kpf-pongo > ../src/checkra1n-kpf-pongo.c"
-)
-
-execute_process(
-        COMMAND sh -c "cd ../src/ && xxd -iC ramdisk.dmg > ../src/ramdisk.dmg.c"
-)
-execute_process(
-        COMMAND sh -c "cd ../src/ && xxd -iC binpack.dmg > ../src/binpack.dmg.c"
-)
-
-execute_process(
-        COMMAND sh -c "cd ../src/ && xxd -iC checkra1n > ../src/checkra1n.c"
-)
 
 include_directories(
         ../include

@@ -308,7 +308,7 @@ jobs:
           find dep_root -name '*.la' -delete
           mkdir build
           cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release -DSTATIC=1 -DDEP=../dep_root -DSRC=../src -DCMAKE_BUILD_TYPE=Release \
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DSTATIC=1 -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_CROSSCOMPILING=true \
             -DCMAKE_SYSTEM_NAME=Darwin \
             -DCMAKE_C_COMPILER="${{ env.CC }}" \
