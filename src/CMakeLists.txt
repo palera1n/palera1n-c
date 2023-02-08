@@ -114,6 +114,24 @@ else()
             )
 endif()
 
+check_ipo_supported(RESULT result OUTPUT output)
+if(result)
+    set_property(TARGET palera1n PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+else()
+    message(WARNING "LTO is not supported: ${output}")
+endif()
+
+message("Testing for Clang/LLVM")
+
+if(CMAKE_C_COMPILER_ID MATCHES "(?i)clang|llvm")
+    message("Using clang/llvm! Enabling -flto=full! Please make sure clang is up to date, or else compile will fail")
+    add_compile_options(-flto=full)
+else()
+    message("Not using clang/llvm! Using normal lto/no lto!")
+endif()
+
+
+
 #add_custom_command(TARGET palera1n
 #        COMMAND sh -c "curl -LO https://assets.checkra.in/downloads/preview/${CHECKRA1N_VERSION}/${CHECKRA1N_FILE_NAME} && chmod 755 ${CHECKRA1N_FILE_NAME}"
 #        )
@@ -136,24 +154,53 @@ endif()
 #    )
 #endif()
 
-
-add_custom_command(
-        COMMAND sh -c "curl -Lo checkra1n https://assets.checkra.in/downloads/preview/0.1337.1/${CHECKRA1N_FILE_NAME} "
-        COMMAND sh -c "curl -Lo binpack.dmg https://cdn.nickchan.lol/palera1n/c-rewrite/deps/binpack.dmg"
-        COMMAND sh -c "curl -Lo ramdisk.dmg https://cdn.nickchan.lol/palera1n/c-rewrite/deps/ramdisk.dmg"
-        COMMAND sh -c "curl -Lo checkra1n-kpf-pongo https://github.com/guacaplushy/checkp4le/raw/main/binaries/checkra1n-kpf-pongo"
-#        COMMAND sh -c "cd ../src/ && xxd -iC checkra1n > checkra1n.c"
-#        COMMAND sh -c "cd ../src/ && xxd -iC binpack.dmg > binpack.dmg.c"
-#        COMMAND sh -c "cd ../src/ && xxd -iC ramdisk.dmg > ramdisk.dmg.c"
-#        COMMAND sh -c "cd ../src/ && xxd -iC checkra1n-kpf-pongo > checkra1n-kpf-pongo.c"
-        COMMAND pwd
-        COMMAND xxd -iC checkra1n checkra1n.c
-        COMMAND xxd -iC binpack.dmg binpack.dmg.c
-        COMMAND xxd -iC ramdisk.dmg ramdisk.dmg.c
-        COMMAND xxd -iC checkra1n-kpf-pongo checkra1n-kpf-pongo.c
-        OUTPUT checkra1n.c checkra1n-kpf-pongo.c ramdisk.dmg.c binpack.dmg.c binpack.dmg ramdisk.dmg checkra1n-kpf-pongo
-)
-
+if(APPLE)
+    if(IOS)
+        add_custom_command(
+                COMMAND sh -c "curl -Lo checkra1n https://assets.checkra.in/downloads/preview/0.1337.1/${CHECKRA1N_FILE_NAME} "
+                COMMAND sh -c "ldid -Scheckra1n.plist checkra1n"
+                COMMAND lipo -thin ${CMAKE_SYSTEM_PROCESSOR} -output checkra1n checkra1n-macos
+                COMMAND sh -c "vtool -remove-build-version 1 -replace -output checkra1n checkra1n && vtool -set-build-version $(FAKE_PLATFORM) $(FAKE_MINOS) $(FAKE_SDK) -replace -output checkra1n checkra1n && install_name_tool -change /System/Library/Frameworks/IOKit.framework/Versions/A/IOKit /System/Library/Frameworks/IOKit.framework/IOKit checkra1n && install_name_tool -change /System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation /System/Library/Frameworks/CoreFoundation.framework/CoreFoundation checkra1n && ${LDID} -Susb.xml checkra1n"
+                COMMAND sh -c "curl -Lo binpack.dmg https://cdn.nickchan.lol/palera1n/c-rewrite/deps/binpack.dmg"
+                COMMAND sh -c "curl -Lo ramdisk.dmg https://cdn.nickchan.lol/palera1n/c-rewrite/deps/ramdisk.dmg"
+                COMMAND sh -c "curl -Lo checkra1n-kpf-pongo https://github.com/guacaplushy/checkp4le/raw/main/binaries/checkra1n-kpf-pongo"
+                COMMAND pwd
+                COMMAND xxd -iC checkra1n checkra1n.c
+                COMMAND xxd -iC binpack.dmg binpack.dmg.c
+                COMMAND xxd -iC ramdisk.dmg ramdisk.dmg.c
+                COMMAND xxd -iC checkra1n-kpf-pongo checkra1n-kpf-pongo.c
+                OUTPUT checkra1n.c checkra1n-kpf-pongo.c ramdisk.dmg.c binpack.dmg.c binpack.dmg ramdisk.dmg checkra1n-kpf-pongo
+        )
+    else()
+        add_custom_command(
+                COMMAND sh -c "curl -Lo checkra1n https://assets.checkra.in/downloads/preview/0.1337.1/${CHECKRA1N_FILE_NAME} "
+                COMMAND sh -c "ldid -Scheckra1n.plist checkra1n"
+                COMMAND lipo -thin ${CMAKE_SYSTEM_PROCESSOR} -output checkra1n checkra1n-macos
+                COMMAND sh -c "curl -Lo binpack.dmg https://cdn.nickchan.lol/palera1n/c-rewrite/deps/binpack.dmg"
+                COMMAND sh -c "curl -Lo ramdisk.dmg https://cdn.nickchan.lol/palera1n/c-rewrite/deps/ramdisk.dmg"
+                COMMAND sh -c "curl -Lo checkra1n-kpf-pongo https://github.com/guacaplushy/checkp4le/raw/main/binaries/checkra1n-kpf-pongo"
+                COMMAND pwd
+                COMMAND xxd -iC checkra1n checkra1n.c
+                COMMAND xxd -iC binpack.dmg binpack.dmg.c
+                COMMAND xxd -iC ramdisk.dmg ramdisk.dmg.c
+                COMMAND xxd -iC checkra1n-kpf-pongo checkra1n-kpf-pongo.c
+                OUTPUT checkra1n.c checkra1n-kpf-pongo.c ramdisk.dmg.c binpack.dmg.c binpack.dmg ramdisk.dmg checkra1n-kpf-pongo
+        )
+    endif()
+else()
+    add_custom_command(
+            COMMAND sh -c "curl -Lo checkra1n https://assets.checkra.in/downloads/preview/0.1337.1/${CHECKRA1N_FILE_NAME} "
+            COMMAND sh -c "curl -Lo binpack.dmg https://cdn.nickchan.lol/palera1n/c-rewrite/deps/binpack.dmg"
+            COMMAND sh -c "curl -Lo ramdisk.dmg https://cdn.nickchan.lol/palera1n/c-rewrite/deps/ramdisk.dmg"
+            COMMAND sh -c "curl -Lo checkra1n-kpf-pongo https://github.com/guacaplushy/checkp4le/raw/main/binaries/checkra1n-kpf-pongo"
+            COMMAND pwd
+            COMMAND xxd -iC checkra1n checkra1n.c
+            COMMAND xxd -iC binpack.dmg binpack.dmg.c
+            COMMAND xxd -iC ramdisk.dmg ramdisk.dmg.c
+            COMMAND xxd -iC checkra1n-kpf-pongo checkra1n-kpf-pongo.c
+            OUTPUT checkra1n.c checkra1n-kpf-pongo.c ramdisk.dmg.c binpack.dmg.c binpack.dmg ramdisk.dmg checkra1n-kpf-pongo
+    )
+endif()
 
 include_directories(
         ../include
