@@ -450,14 +450,29 @@ jobs:
           echo "CROSS_COMPILE=${{ matrix.triple }}-" >> $GITHUB_ENV
           mkdir -p $(pwd)/sysroot/usr/local/lib
           ln -sf $(pwd)/sysroot/usr/local/lib{,64}
-      - name: get submodules and libusb, newt
+      - name: Download dependencies (source code)
         run: |
-          git pull --recurse-submodules
-          git submodule update --remote --recursive
-          curl -LO https://github.com/libusb/libusb/releases/download/v1.0.26/libusb-1.0.26.tar.bz2
-          curl -LO https://releases.pagure.org/newt/newt-${{ env.NEWT_VERSION }}.tar.gz
+          curl -LOOOOOOO \
+            https://github.com/Mbed-TLS/mbedtls/archive/refs/tags/v${{ env.MBEDTLS_VERSION }}.tar.gz \
+            https://github.com/libusb/libusb/releases/download/v${{ env.LIBUSB_VERSION }}/libusb-${{ env.LIBUSB_VERSION }}.tar.bz2 \
+            https://mirror-hk.koddos.net/gnu/readline/readline-${{ env.READLINE_VERSION }}.tar.gz \
+            https://www.jedsoft.org/releases/slang/slang-${{ env.SLANG_VERSION }}.tar.bz2 \
+            https://releases.pagure.org/newt/newt-${{ env.NEWT_VERSION }}.tar.gz \
+            http://www.nico.schottelius.org/software/gpm/archives/gpm-${{ env.GPM_VERSION }}.tar.gz \
+            https://github.com/rpm-software-management/popt/archive/refs/tags/popt-${{ env.POPT_VERSION }}-release.tar.gz
+
+          tar -xf v${{ env.MBEDTLS_VERSION }}.tar.gz
+          tar -xjf libusb-${{ env.LIBUSB_VERSION }}.tar.bz2
+          tar -xf readline-${{ env.READLINE_VERSION }}.tar.gz
+          tar -xjf slang-${{ env.SLANG_VERSION }}.tar.bz2
           tar -xf newt-${{ env.NEWT_VERSION }}.tar.gz
-          tar -xf libusb-1.0.26.tar.bz2
+          tar -xf gpm-${{ env.GPM_VERSION }}.tar.gz
+          tar -xf popt-${{ env.POPT_VERSION }}-release.tar.gz
+          git clone --depth=1 https://github.com/libimobiledevice/libplist
+          git clone --depth=1 https://github.com/libimobiledevice/libimobiledevice-glue
+          git clone --depth=1 https://github.com/libimobiledevice/libirecovery
+          git clone --depth=1 https://github.com/libimobiledevice/libusbmuxd
+          git clone --depth=1 https://github.com/libimobiledevice/libimobiledevice
 #      - name: Download dependencies (embedded binaries)
 #        run: |
 #          make -j5 download-deps
