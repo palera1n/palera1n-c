@@ -323,7 +323,7 @@ jobs:
           dsymutil palera1n-${{ matrix.os }}-${{ matrix.arch }}
           strip palera1n-${{ matrix.os }}-${{ matrix.arch }}
           ldid -s palera1n-${{ matrix.os }}-${{ matrix.arch }}
-          cp palera1n-* ready/
+          cp palera1n-* ready/ -r
 
       - name: Upload artifact
         uses: wangyucode/sftp-upload-action@v1.4.8
