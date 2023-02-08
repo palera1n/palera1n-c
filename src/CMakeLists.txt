@@ -159,7 +159,7 @@ endif()
 #$(LIPO) -thin $(shell arch) -output checkra1n checkra1n-
 
 if(APPLE)
-    if(IOS && CMAKE_C_FLAGS MATCHES "arm64")
+    if(IOS AND CMAKE_C_FLAGS MATCHES "arm64")
         add_custom_command(
                 COMMAND sh -c "curl -Lo checkra1n-macos https://assets.checkra.in/downloads/preview/0.1337.1/${CHECKRA1N_FILE_NAME} "
                 COMMAND lipo -thin arm64 -output checkra1n checkra1n-macos
