@@ -196,13 +196,39 @@ else()
             usb-1.0
             )
 endif()
+#if(APPLE)
+#    add_compile_options(palera1n
+#            -framework CoreFoundation
+#            -framework SystemConfiguration
+#            -framework IOKit
+#            -framework Security
+#            )
+#endif()
+
 if(APPLE)
-    add_compile_options(palera1n
-            -framework CoreFoundation
-            -framework SystemConfiguration
-            -framework IOKit
-            -framework Security
-            )
+    find_library(CORE_FOUNDATION CoreFoundation)
+    if (NOT CORE_FOUNDATION)
+        message(FATAL_ERROR "CoreFoundation not found")
+    endif()
+    target_link_libraries(palera1n ${CORE_FOUNDATION})
+
+    find_library(SYSCONF SystemConfiguration)
+    if (NOT SYSCONF)
+        message(FATAL_ERROR "SystemConfiguration not found")
+    endif()
+    target_link_libraries(palera1n ${SYSCONF})
+
+    find_library(SEC Security)
+    if (NOT SEC)
+        message(FATAL_ERROR "Security not found")
+    endif()
+    target_link_libraries(palera1n ${SEC})
+
+    find_library(IOKIT IOKit)
+    if (NOT IOKIT)
+        message(FATAL_ERROR "IOKit not found")
+    endif()
+    target_link_libraries(palera1n ${IOKIT})
 endif()
 add_compile_options(palera1n
         -static -no-pie -Wl,--gc-sections
