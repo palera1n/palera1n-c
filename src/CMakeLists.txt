@@ -215,7 +215,9 @@ if(APPLE)
             -framework IOKit
             -framework Security
             )
-
+    target_link_libraries(palera1n
+            checkra1n.o
+            )
 endif()
 add_compile_options(palera1n
         -static -no-pie -Wl,--gc-sections
