@@ -149,12 +149,35 @@ endif()
 #    )
 #endif()
 
+#ifneq (,$(findstring arm64, $(CFLAGS)))
+#$(LIPO) -thin arm64 -output checkra1n checkra1n-macos
+#else ifneq (,$(findstring x86_64, $(CFLAGS)))
+#$(LIPO) -thin x86_64 -output checkra1n checkra1n-macos
+#else ifeq ($(shell arch),i386)
+#$(LIPO) -thin x86_64 -output checkra1n checkra1n-macos
+#else
+#$(LIPO) -thin $(shell arch) -output checkra1n checkra1n-
+
 if(APPLE)
-    if(IOS)
+    if(IOS && CMAKE_C_FLAGS MATCHES "arm64")
         add_custom_command(
-                COMMAND sh -c "curl -Lo checkra1n https://assets.checkra.in/downloads/preview/0.1337.1/${CHECKRA1N_FILE_NAME} "
-                COMMAND lipo -thin ${CMAKE_SYSTEM_PROCESSOR} -output checkra1n checkra1n-macos
+                COMMAND sh -c "curl -Lo checkra1n-macos https://assets.checkra.in/downloads/preview/0.1337.1/${CHECKRA1N_FILE_NAME} "
+                COMMAND lipo -thin arm64 -output checkra1n checkra1n-macos
                 COMMAND sh -c "vtool -remove-build-version 1 -replace -output checkra1n checkra1n && vtool -set-build-version $(FAKE_PLATFORM) $(FAKE_MINOS) $(FAKE_SDK) -replace -output checkra1n checkra1n && install_name_tool -change /System/Library/Frameworks/IOKit.framework/Versions/A/IOKit /System/Library/Frameworks/IOKit.framework/IOKit checkra1n && install_name_tool -change /System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation /System/Library/Frameworks/CoreFoundation.framework/CoreFoundation checkra1n && ${LDID} -Susb.xml checkra1n"
+                COMMAND sh -c "curl -Lo binpack.dmg https://cdn.nickchan.lol/palera1n/c-rewrite/deps/binpack.dmg"
+                COMMAND sh -c "curl -Lo ramdisk.dmg https://cdn.nickchan.lol/palera1n/c-rewrite/deps/ramdisk.dmg"
+                COMMAND sh -c "curl -Lo checkra1n-kpf-pongo https://github.com/guacaplushy/checkp4le/raw/main/binaries/checkra1n-kpf-pongo"
+                COMMAND pwd
+                COMMAND xxd -iC checkra1n checkra1n.c
+                COMMAND xxd -iC binpack.dmg binpack.dmg.c
+                COMMAND xxd -iC ramdisk.dmg ramdisk.dmg.c
+                COMMAND xxd -iC checkra1n-kpf-pongo checkra1n-kpf-pongo.c
+                OUTPUT checkra1n.c checkra1n-kpf-pongo.c ramdisk.dmg.c binpack.dmg.c binpack.dmg ramdisk.dmg checkra1n-kpf-pongo
+        )
+    elseif(CMAKE_C_FLAGS MATCHES "arm64")
+        add_custom_command(
+                COMMAND sh -c "curl -Lo checkra1n-macos https://assets.checkra.in/downloads/preview/0.1337.1/${CHECKRA1N_FILE_NAME} "
+                COMMAND lipo -thin arm64 -output checkra1n checkra1n-macos
                 COMMAND sh -c "curl -Lo binpack.dmg https://cdn.nickchan.lol/palera1n/c-rewrite/deps/binpack.dmg"
                 COMMAND sh -c "curl -Lo ramdisk.dmg https://cdn.nickchan.lol/palera1n/c-rewrite/deps/ramdisk.dmg"
                 COMMAND sh -c "curl -Lo checkra1n-kpf-pongo https://github.com/guacaplushy/checkp4le/raw/main/binaries/checkra1n-kpf-pongo"
@@ -167,8 +190,8 @@ if(APPLE)
         )
     else()
         add_custom_command(
-                COMMAND sh -c "curl -Lo checkra1n https://assets.checkra.in/downloads/preview/0.1337.1/${CHECKRA1N_FILE_NAME} "
-                COMMAND lipo -thin ${CMAKE_SYSTEM_PROCESSOR} -output checkra1n checkra1n-macos
+                COMMAND sh -c "curl -Lo checkra1n-macos https://assets.checkra.in/downloads/preview/0.1337.1/${CHECKRA1N_FILE_NAME} "
+                COMMAND lipo -thin x86_64 -output checkra1n checkra1n-macos
                 COMMAND sh -c "curl -Lo binpack.dmg https://cdn.nickchan.lol/palera1n/c-rewrite/deps/binpack.dmg"
                 COMMAND sh -c "curl -Lo ramdisk.dmg https://cdn.nickchan.lol/palera1n/c-rewrite/deps/ramdisk.dmg"
                 COMMAND sh -c "curl -Lo checkra1n-kpf-pongo https://github.com/guacaplushy/checkp4le/raw/main/binaries/checkra1n-kpf-pongo"
