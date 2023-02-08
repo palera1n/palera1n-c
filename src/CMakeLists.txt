@@ -108,7 +108,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 
 elseif(CMAKE_BUILD_TYPE STREQUAL "ASAN")
     add_executable(palera1n
-            checkra1n.c
+#            checkra1n.c
             checkra1n-kpf-pongo.c
             ramdisk.dmg.c
             binpack.dmg.c
@@ -140,7 +140,7 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "ASAN")
 else()
     set(CMAKE_BUILD_TYPE "Release")
     add_executable(palera1n
-            checkra1n.c
+#            checkra1n.c
             checkra1n-kpf-pongo.c
             ramdisk.dmg.c
             binpack.dmg.c
