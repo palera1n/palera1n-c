@@ -85,12 +85,13 @@ jobs:
 
       - name: Download dependencies (source code)
         run: |
-          curl -LOOOOOO \
+          curl -LOOOOOOO \
             https://github.com/Mbed-TLS/mbedtls/archive/refs/tags/v${{ env.MBEDTLS_VERSION }}.tar.gz \
             https://github.com/libusb/libusb/releases/download/v${{ env.LIBUSB_VERSION }}/libusb-${{ env.LIBUSB_VERSION }}.tar.bz2 \
             https://mirror-hk.koddos.net/gnu/readline/readline-${{ env.READLINE_VERSION }}.tar.gz \
             https://www.jedsoft.org/releases/slang/slang-${{ env.SLANG_VERSION }}.tar.bz2 \
             https://releases.pagure.org/newt/newt-${{ env.NEWT_VERSION }}.tar.gz \
+            http://www.nico.schottelius.org/software/gpm/archives/gpm-${{ env.GPM_VERSION }}.tar.gz \
             https://github.com/rpm-software-management/popt/archive/refs/tags/popt-${{ env.POPT_VERSION }}-release.tar.gz
 
           tar -xf v${{ env.MBEDTLS_VERSION }}.tar.gz
@@ -98,6 +99,7 @@ jobs:
           tar -xf readline-${{ env.READLINE_VERSION }}.tar.gz
           tar -xjf slang-${{ env.SLANG_VERSION }}.tar.bz2
           tar -xf newt-${{ env.NEWT_VERSION }}.tar.gz
+          tar -xf gpm-${{ env.GPM_VERSION }}.tar.gz
           tar -xf popt-${{ env.POPT_VERSION }}-release.tar.gz
           git clone --depth=1 https://github.com/libimobiledevice/libplist
           git clone --depth=1 https://github.com/libimobiledevice/libimobiledevice-glue
@@ -105,101 +107,43 @@ jobs:
           git clone --depth=1 https://github.com/libimobiledevice/libusbmuxd
           git clone --depth=1 https://github.com/libimobiledevice/libimobiledevice
 
-      - name: Setup environment
-        run: |
-          mkdir sysroot
-          echo "DESTDIR=$(pwd)/sysroot" >> $GITHUB_ENV
-          echo "PREFIX=/usr/local" >> $GITHUB_ENV
-          echo "PKG_CONFIG_PATH=$(pwd)/sysroot/usr/local/lib/pkgconfig" >> $GITHUB_ENV
-          echo "CONFIGURE_ARGS=--prefix=/usr/local --disable-shared --enable-static --build=x86_64-apple-darwin --host=${{ matrix.gnu_triple }}" >> $GITHUB_ENV
-          echo "CC=$(xcrun --find cc)" >> $GITHUB_ENV
-          echo "CXX=$(xcrun --find c++)" >> $GITHUB_ENV
-          echo "CPP=$(xcrun --find cc) -E" >> $GITHUB_ENV
-          echo "CFLAGS=-g -Os -arch ${{ matrix.arch }} -m${{ matrix.os }}-version-min=${{ matrix.minos }} -isysroot ${{ env.SDK }} -isystem $(pwd)/sysroot/usr/local/include" >> $GITHUB_ENV
-          echo "CPPFLAGS=-g -Os -arch ${{ matrix.arch }} -m${{ matrix.os }}-version-min=${{ matrix.minos }} -isysroot ${{ env.SDK }} -isystem $(pwd)/sysroot/usr/local/include -Wno-error-implicit-function-declaration" >> $GITHUB_ENV
-          echo "CXXFLAGS=-stdlib=libc++ -g -Os -isysroot ${{ env.SDK }} -arch ${{ matrix.arch }} -m${{ matrix.os }}-version-min=${{ matrix.minos }} -isystem $(pwd)/sysroot/usr/local/include" >> $GITHUB_ENV
-          echo "LDFLAGS=-g -Wl,-dead_strip -arch ${{ matrix.arch }} -isysroot ${{ env.SDK }} -m${{ matrix.os }}-version-min=${{ matrix.minos }} -L$(pwd)/sysroot/usr/local/lib" >> $GITHUB_ENV
-          echo "CFLAGS_FOR_BUILD=-arch $(uname -m) -isysroot $(xcrun -sdk macosx --show-sdk-path)" >> $GITHUB_ENV
-          echo "CXXFLAGS_FOR_BUILD=-stdlib=libc++ -arch $(uname -m) -isysroot $(xcrun -sdk macosx --show-sdk-path)" >> $GITHUB_ENV
-          echo "CPPFLAGS_FOR_BUILD=-arch $(uname -m) -isysroot $(xcrun -sdk macosx --show-sdk-path) -Wno-error-implicit-function-declaration" >> $GITHUB_ENV
-          echo "LDFLAGS_FOR_BUILD=-Wl,-dead_strip" >> $GITHUB_ENV
-          mkdir -p $(pwd)/sysroot/usr/local/lib
-          ln -sf $(pwd)/sysroot/usr/local/lib{,64}
-
-      - name: Prepare headers
-        if: matrix.os != 'macosx'
-        run: |
-          mkdir -p sysroot/{{,System}/Library/Frameworks,/usr/{local/include/{bsm,objc,os/internal,sys,firehose,CoreFoundation,FSEvents,IOKit/kext,libkern,kern,arm,{mach/,}machine,CommonCrypto,Security,CoreSymbolication,Kernel/{kern,IOKit,libkern},rpc,rpcsvc,xpc/private,ktrace,mach-o,dispatch},lib/pkgconfig,/local/lib}}
-          MACOSX_SYSROOT=$(xcrun -sdk macosx --show-sdk-path)
-          TARGET_SYSROOT=$(xcrun -sdk ${{ matrix.os }} --show-sdk-path)
-          cp -af ${MACOSX_SYSROOT}/usr/include/{arpa,bsm,hfs,net,xpc,netinet,servers,timeconv.h,launch.h} sysroot/usr/local/include
-          cp -af ${MACOSX_SYSROOT}/usr/include/objc/objc-runtime.h sysroot/usr/local/include/objc
-          cp -af ${MACOSX_SYSROOT}/usr/include/libkern/{OSDebug.h,OSKextLib.h,OSReturn.h,OSThermalNotification.h,OSTypes.h,machine} sysroot/usr/local/include/libkern
-          cp -af ${MACOSX_SYSROOT}/usr/include/kern sysroot/usr/local/include
-          cp -af ${MACOSX_SYSROOT}/usr/include/sys/{tty*,ptrace,kern*,random,reboot,user,vnode,disk,vmmeter,conf}.h sysroot/usr/local/include/sys
-          cp -af ${MACOSX_SYSROOT}/System/Library/Frameworks/Kernel.framework/Versions/Current/Headers/sys/disklabel.h sysroot/usr/local/include/sys
-          cp -af ${MACOSX_SYSROOT}/System/Library/Frameworks/IOKit.framework/Headers/{AppleConvergedIPCKeys.h,IOBSD.h,IOCFBundle.h,IOCFPlugIn.h,IOCFURLAccess.h,IOKitServer.h,IORPC.h,IOSharedLock.h,IOUserServer.h,audio,avc,firewire,graphics,hid,hidsystem,i2c,iokitmig.h,kext,ndrvsupport,network,ps,pwr_mgt,sbp2,scsi,serial,storage,stream,usb,video} sysroot/usr/local/include/IOKit
-          cp -af ${MACOSX_SYSROOT}/System/Library/Frameworks/Security.framework/Headers/{mds_schema,oidsalg,SecKeychainSearch,certextensions,Authorization,eisl,SecDigestTransform,SecKeychainItem,oidscrl,cssmcspi,CSCommon,cssmaci,SecCode,CMSDecoder,oidscert,SecRequirement,AuthSession,SecReadTransform,oids,cssmconfig,cssmkrapi,SecPolicySearch,SecAccess,cssmtpi,SecACL,SecEncryptTransform,cssmapi,cssmcli,mds,x509defs,oidsbase,SecSignVerifyTransform,cssmspi,cssmkrspi,SecTask,cssmdli,SecAsn1Coder,cssm,SecTrustedApplication,SecCodeHost,SecCustomTransform,oidsattr,SecIdentitySearch,cssmtype,SecAsn1Types,emmtype,SecTransform,SecTrustSettings,SecStaticCode,emmspi,SecTransformReadTransform,SecKeychain,SecDecodeTransform,CodeSigning,AuthorizationPlugin,cssmerr,AuthorizationTags,CMSEncoder,SecEncodeTransform,SecureDownload,SecAsn1Templates,AuthorizationDB,SecCertificateOIDs,cssmapple}.h sysroot/usr/local/include/Security
-          cp -af ${MACOSX_SYSROOT}/usr/include/{ar,bootstrap,launch,libc,libcharset,localcharset,nlist,NSSystemDirectories,tzfile,vproc}.h sysroot/usr/local/include
-          cp -af ${MACOSX_SYSROOT}/usr/include/mach/{*.defs,{mach_vm,shared_region}.h} sysroot/usr/local/include/mach
-          cp -af ${MACOSX_SYSROOT}/usr/include/mach/machine/*.defs sysroot/usr/local/include/mach/machine
-          cp -af ${MACOSX_SYSROOT}/usr/include/rpc/pmap_clnt.h sysroot/usr/local/include/rpc
-          cp -af ${MACOSX_SYSROOT}/usr/include/rpcsvc/yp{_prot,clnt}.h sysroot/usr/local/include/rpcsvc
-          cp -af ${TARGET_SYSROOT}/usr/include/mach/machine/thread_state.h sysroot/usr/local/include/mach/machine
-          cp -af ${TARGET_SYSROOT}/usr/include/mach/arm sysroot/usr/local/include/mach
-          cp -af ${MACOSX_SYSROOT}/System/Library/Frameworks/IOKit.framework/Headers/* sysroot/usr/local/include/IOKit
-          gsed -E s/'__IOS_PROHIBITED|__TVOS_PROHIBITED|__WATCHOS_PROHIBITED'//g < ${TARGET_SYSROOT}/usr/include/stdlib.h > sysroot/usr/local/include/stdlib.h
-          gsed -E s/'__IOS_PROHIBITED|__TVOS_PROHIBITED|__WATCHOS_PROHIBITED'//g < ${TARGET_SYSROOT}/usr/include/time.h > sysroot/usr/local/include/time.h
-          gsed -E s/'__IOS_PROHIBITED|__TVOS_PROHIBITED|__WATCHOS_PROHIBITED'//g < ${TARGET_SYSROOT}/usr/include/unistd.h > sysroot/usr/local/include/unistd.h
-          gsed -E s/'__IOS_PROHIBITED|__TVOS_PROHIBITED|__WATCHOS_PROHIBITED'//g < ${TARGET_SYSROOT}/usr/include/mach/task.h > sysroot/usr/local/include/mach/task.h
-          gsed -E s/'__IOS_PROHIBITED|__TVOS_PROHIBITED|__WATCHOS_PROHIBITED'//g < ${TARGET_SYSROOT}/usr/include/mach/mach_host.h > sysroot/usr/local/include/mach/mach_host.h
-          gsed -E s/'__IOS_PROHIBITED|__TVOS_PROHIBITED|__WATCHOS_PROHIBITED'//g < ${TARGET_SYSROOT}/usr/include/ucontext.h > sysroot/usr/local/include/ucontext.h
-          gsed -E s/'__IOS_PROHIBITED|__TVOS_PROHIBITED|__WATCHOS_PROHIBITED'//g < ${TARGET_SYSROOT}/usr/include/signal.h > sysroot/usr/local/include/signal.h
-          gsed -E /'__API_UNAVAILABLE'/d < ${TARGET_SYSROOT}/usr/include/pthread.h > sysroot/usr/local/include/pthread.h
-          gsed -i -E s/'__API_UNAVAILABLE\(.*\)'// sysroot/usr/local/include/IOKit/IOKitLib.h
-
       - name: Build Mbed TLS
         run: |
           cd mbedtls-${{ env.MBEDTLS_VERSION }}
           cat ../patches/mbedtls/0001-Allow-empty-x509-cert-issuer.patch | patch -sN -d . -p1
           mkdir build
           cd build
-          SDKROOT="${{ env.SDK }}" cmake .. \
+          cmake .. \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_CROSSCOMPILING=true \
-            -DCMAKE_SYSTEM_NAME=Darwin \
-            -DCMAKE_C_COMPILER="${{ env.CC }}" \
-            -DCMAKE_C_FLAGS='${{ env.CFLAGS }}' \
+            -DCMAKE_SYSTEM_NAME=Linux \
+            -DCMAKE_SYSTEM_PROCESSOR=$(echo ${{ matrix.triple }} | cut -d- -f1) \
+            -DCMAKE_C_COMPILER='${{ env.CROSS_COMPILE }}gcc' \
+            -DCMAKE_C_FLAGS='${{ env.CFLAGS }}'  \
+            -DCMAKE_CXX_FLAGS='${{ env.CXXFLAGS }}' \
             -DCMAKE_FIND_ROOT_PATH="${{ env.DESTDIR }}" \
             -DCMAKE_INSTALL_PREFIX="${{ env.PREFIX }}" \
-            -DMBEDTLS_PYTHON_EXECUTABLE="/usr/local/bin/python3" \
             -DENABLE_TESTING=OFF \
             -DENABLE_PROGRAMS=OFF \
-            -DMBEDTLS_FATAL_WARNINGS=OFF \
             -DCMAKE_INSTALL_SYSCONFDIR="/etc"
-          gmake -j$(sysctl -n hw.ncpu) \
-             SDKROOT="${{ env.SDK }}"
-          gmake -j$(sysctl -n hw.ncpu) install DESTDIR=${{ env.DESTDIR }}
+          make -j$(nproc)
+          make -j$(nproc) install DESTDIR=${{ env.DESTDIR }}
           cd ..
 
       - name: Build libusb
         run: |
           cd libusb-${{ env.LIBUSB_VERSION }}
-          if [ "${{ matrix.os }}" != "macosx" ]; then
-            curl -Lo libusb.patch https://github.com/ProcursusTeam/Procursus/raw/5f4f302f6cb81ce10c7d92ffefd75c004b5da18f/build_patch/libusb/0001-Get-rid-of-some-macro-checks.patch
-            cat libusb.patch | patch -sN -d . -p1
-          fi
-          ./configure ${{ env.CONFIGURE_ARGS }} --disable-udev --enable-log
-          gmake -j$(sysctl -n hw.ncpu)
-          gmake -j$(sysctl -n hw.ncpu) install DESTDIR=${{ env.DESTDIR }}
+          ./configure ${{ env.CONFIGURE_ARGS }} --disable-udev
+          make -j$(nproc)
+          make -j$(nproc) install DESTDIR=${{ env.DESTDIR }}
           cd ..
 
       - name: Build readline
         run: |
           cd readline-${{ env.READLINE_VERSION }}
-          CC=clang CXX=clang++ ./configure ${{ env.CONFIGURE_ARGS }} ac_cv_type_sig_atomic_t=no
-          gmake -j$(sysctl -n hw.ncpu)
-          gmake -j$(sysctl -n hw.ncpu) install DESTDIR=${{ env.DESTDIR }}
+          ./configure ${{ env.CONFIGURE_ARGS }}
+          make -j$(nproc)
+          make -j$(nproc) install DESTDIR=${{ env.DESTDIR }}
           cd ..
 
       - name: Build S-Lang
@@ -215,6 +159,17 @@ jobs:
             --without-iconv
           gmake -j$(sysctl -n hw.ncpu) static
           gmake -j$(sysctl -n hw.ncpu) install-static DESTDIR=${{ env.DESTDIR }}
+          cd ..
+
+      - name: Build GPM
+        run: |
+          cd gpm-${{ env.GPM_VERSION }}
+          cat ../patches/gpm/*.patch | patch -sN -d . -p1
+          ./autogen.sh
+          ./configure \
+            ${{ env.CONFIGURE_ARGS }}
+          gmake -j$(sysctl -n hw.ncpu)
+          gmake -j$(sysctl -n hw.ncpu) install DESTDIR=${{ env.DESTDIR }}
           cd ..
 
       - name: Build popt
@@ -239,7 +194,8 @@ jobs:
             --with-readline=gnu \
             --without-python \
             --without-tcl \
-            --disable-nls
+            --disable-nls \
+            --with-gpm-support
           gmake -j$(sysctl -n hw.ncpu) libnewt.a
           mkdir -p ${{ env.DESTDIR }}/usr/local/{lib/pkgconfig,include}
           install -m644 libnewt.pc ${{ env.DESTDIR }}/usr/local/lib/pkgconfig
@@ -252,8 +208,8 @@ jobs:
           cd libplist
           autoreconf -fiv
           ./configure ${{ env.CONFIGURE_ARGS }} --without-cython
-          gmake -j$(sysctl -n hw.ncpu)
-          gmake -j$(sysctl -n hw.ncpu) install DESTDIR=${{ env.DESTDIR }}
+          make -j$(nproc)
+          make -j$(nproc) install DESTDIR=${{ env.DESTDIR }}
           cd ..
 
       - name: Build libimobiledevice-glue
@@ -261,23 +217,20 @@ jobs:
           cd libimobiledevice-glue
           autoreconf -fiv
           ./configure ${{ env.CONFIGURE_ARGS }}
-          gmake -j$(sysctl -n hw.ncpu)
-          gmake -j$(sysctl -n hw.ncpu) install DESTDIR=${{ env.DESTDIR }}
+          make -j$(nproc)
+          make -j$(nproc) install DESTDIR=${{ env.DESTDIR }}
           cd ..
 
-      - name: Build libirecovery
+      - name: Build libirecovery (sorta)
         run: |
-          sudo cp -a sysroot/usr/local/* /usr/local
+          sudo mv /usr/local /usr/local.bak
+          sudo ln -s ${{ env.DESTDIR }}${{ env.PREFIX }} /usr/local
           cd libirecovery
           autoreconf -fiv
-          if [ "${{ matrix.os }}" != "macosx" ]; then
-            ./configure ${{ env.CONFIGURE_ARGS }} --with-iokit=no
-          else
-            ./configure ${{ env.CONFIGURE_ARGS }}
-          fi
+          ./configure ${{ env.CONFIGURE_ARGS }}
           echo -e 'all:\ninstall:' > tools/Makefile
-          make -j$(sysctl -n hw.ncpu) LIBS="-lncurses"
-          make -j$(sysctl -n hw.ncpu) install DESTDIR=${{ env.DESTDIR }}
+          make -ij$(nproc)
+          make -ij$(nproc) install DESTDIR=${{ env.DESTDIR }}
           install -m644 src/.libs/libirecovery-1.0.a ${{ env.DESTDIR }}${{ env.PREFIX }}/lib
           cd ..
 
@@ -286,8 +239,8 @@ jobs:
           cd libusbmuxd
           autoreconf -fiv
           ./configure ${{ env.CONFIGURE_ARGS }}
-          gmake -j$(sysctl -n hw.ncpu)
-          gmake -j$(sysctl -n hw.ncpu) install DESTDIR=${{ env.DESTDIR }}
+          make -j$(nproc)
+          make -j$(nproc) install DESTDIR=${{ env.DESTDIR }}
           cd ..
 
       - name: Build libimobiledevice
@@ -296,9 +249,12 @@ jobs:
           autoreconf -fiv
           ./configure ${{ env.CONFIGURE_ARGS }} --with-mbedtls --enable-debug
           echo -e 'all:\ninstall:' > tools/Makefile
-          gmake -j$(sysctl -n hw.ncpu)
-          gmake -j$(sysctl -n hw.ncpu) install DESTDIR=${{ env.DESTDIR }}
+          make -j$(nproc)
+          make -j$(nproc) install DESTDIR=${{ env.DESTDIR }}
           cd ..
+          sudo rm /usr/local
+          sudo mv /usr/local.bak /usr/local
+
 
       - name: Build palera1n
         run: |
