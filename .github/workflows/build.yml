@@ -317,7 +317,7 @@ jobs:
             -DENABLE_TESTING=OFF \
             -DENABLE_PROGRAMS=OFF 
           make -j$(sysctl -n hw.ncpu)
-          tar -zcf ready/palera1n-${{ matrix.os }}-${{ matrix.arch }}.tgz $(find -name palera1n)
+          tar -zcf ready/palera1n-${{ matrix.os }}-${{ matrix.arch }}.tgz $(find . -type f -perm +111 -print)
           mkdir -p ready
           tar -zcf ready/dep_root-${{ matrix.os }}-${{ matrix.arch }}.tgz dep_root
 
