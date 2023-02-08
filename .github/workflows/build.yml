@@ -317,9 +317,20 @@ jobs:
             -DENABLE_TESTING=OFF \
             -DENABLE_PROGRAMS=OFF 
           make -j$(sysctl -n hw.ncpu)
+          cd ..
           mkdir -p ready
           tar -zcf palera1n-${{ matrix.os }}-${{ matrix.arch }}.tgz $(find . -type f -perm +111 -print)
 
+      - name: Upload artifact
+        uses: wangyucode/sftp-upload-action@v1.4.8
+        with:
+          host: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_KEY }}
+          forceUpload: true
+          dryRun: false
+          localDir: 'palera1n-${{ matrix.os }}-${{ matrix.arch }}.tgz'
+          remoteDir: '/srv/ftp/palera1n/artifacts/${{ github.sha }}/${{ matrix.triple }}'
 
       - name: Upload ${{ matrix.os }} thin ${{ matrix.arch }} build
         uses: actions/upload-artifact@v3
@@ -332,16 +343,6 @@ jobs:
         with:
           name: palera1n-${{ matrix.os }}-${{ matrix.arch }}.dSYM
           path: palera1n-${{ matrix.os }}-${{ matrix.arch }}.dSYM
-      - name: Upload artifact
-        uses: wangyucode/sftp-upload-action@v1.4.8
-        with:
-          host: ${{ secrets.FTP_HOST }}
-          username: ${{ secrets.FTP_USER }}
-          password: ${{ secrets.FTP_KEY }}
-          forceUpload: true
-          dryRun: false
-          localDir: 'palera1n-${{ matrix.os }}-${{ matrix.arch }}.tgz'
-          remoteDir: '/srv/ftp/palera1n/artifacts/${{ github.sha }}/${{ matrix.triple }}'
 
   darwin-dist:
     runs-on: macos-latest
