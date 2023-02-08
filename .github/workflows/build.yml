@@ -81,7 +81,6 @@ jobs:
 
       - name: Download dependencies (embedded binaries)
         run: |
-          make -j5 download-deps
           echo "SDK=$(xcrun -sdk ${{ matrix.os }} --show-sdk-path)" >> $GITHUB_ENV
 
       - name: Download dependencies (source code)
@@ -308,7 +307,7 @@ jobs:
           find dep_root -name '*.la' -delete
           mkdir build
           cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release -DSTATIC=1 -DCMAKE_BUILD_TYPE=Release \
+          cmake .. -DSTATIC=1 -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_CROSSCOMPILING=true \
             -DCMAKE_SYSTEM_NAME=Darwin \
             -DCMAKE_C_COMPILER="${{ env.CC }}" \

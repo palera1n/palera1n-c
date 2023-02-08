@@ -16,11 +16,11 @@ if( ${LIPO})
     set(LIPO lipo)
 endif()
 
-    if(APPLE)
-        set(CHECKRA1N_FILE_NAME checkra1n-macos)
-    else()
-        set(CHECKRA1N_FILE_NAME checkra1n-linux-${CMAKE_SYSTEM_PROCESSOR})
-    endif()
+if(APPLE)
+    set(CHECKRA1N_FILE_NAME checkra1n-macos)
+else()
+    set(CHECKRA1N_FILE_NAME checkra1n-linux-${CMAKE_SYSTEM_PROCESSOR})
+endif()
 
 
 execute_process(
@@ -60,23 +60,27 @@ execute_process(
 )
 
 execute_process(
-        COMMAND sh -c "cd ../src/ && xxd -iC checkra1n-kpf-pongo > ../src/checkra1n-kpf-pongo.c"
+        COMMAND sh -c "cd ../src/ && xxd -iC checkra1n-kpf-pongo > checkra1n-kpf-pongo.c"
 )
 
 execute_process(
-        COMMAND sh -c "cd ../src/ && xxd -iC ramdisk.dmg > ../src/ramdisk.dmg.c"
+        COMMAND sh -c "cd ../src/ && xxd -iC ramdisk.dmg > ramdisk.dmg.c"
 )
 execute_process(
-        COMMAND sh -c "cd ../src/ && xxd -iC binpack.dmg > ../src/binpack.dmg.c"
+        COMMAND sh -c "cd ../src/ && xxd -iC binpack.dmg > binpack.dmg.c"
 )
 
 execute_process(
-        COMMAND sh -c "cd ../src/ && xxd -iC checkra1n > ../src/checkra1n.c"
+        COMMAND sh -c "cd ../src/ && xxd -iC checkra1n > checkra1n.c"
 )
 
 # adds dev mode files
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_executable(palera1n
+            checkra1n.c
+            checkra1n-kpf-pongo.c
+            ramdisk.dmg.c
+            binpack.dmg.c
             main.c
             log.c
             optparse.c
@@ -89,10 +93,6 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
             lock_vars.c
             lockdown_helper.c
             lockdown_helper.h
-            checkra1n.c
-            checkra1n-kpf-pongo.c
-            ramdisk.dmg.c
-            binpack.dmg.c
             ../include/palerain.h
             ../include/kerninfo.h
             ../include/ANSI-color-codes.h
@@ -108,6 +108,10 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 
 elseif(CMAKE_BUILD_TYPE STREQUAL "ASAN")
     add_executable(palera1n
+            checkra1n.c
+            checkra1n-kpf-pongo.c
+            ramdisk.dmg.c
+            binpack.dmg.c
             main.c
             log.c
             optparse.c
@@ -120,10 +124,6 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "ASAN")
             lock_vars.c
             lockdown_helper.c
             lockdown_helper.h
-            checkra1n.c
-            checkra1n-kpf-pongo.c
-            ramdisk.dmg.c
-            binpack.dmg.c
             ../include/palerain.h
             ../include/kerninfo.h
             ../include/ANSI-color-codes.h
@@ -140,6 +140,10 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "ASAN")
 else()
     set(CMAKE_BUILD_TYPE "Release")
     add_executable(palera1n
+            checkra1n.c
+            checkra1n-kpf-pongo.c
+            ramdisk.dmg.c
+            binpack.dmg.c
             main.c
             log.c
             optparse.c
@@ -152,10 +156,6 @@ else()
             lock_vars.c
             lockdown_helper.c
             lockdown_helper.h
-            checkra1n.c
-            checkra1n-kpf-pongo.c
-            ramdisk.dmg.c
-            binpack.dmg.c
             ../include/palerain.h
             ../include/kerninfo.h
             ../include/ANSI-color-codes.h
@@ -215,7 +215,11 @@ if(APPLE)
             -framework IOKit
             -framework Security
             )
+
 endif()
+add_compile_options(palera1n
+        -static -no-pie -Wl,--gc-sections
+        )
 
 
 if(!BUILD_DATE)
