@@ -77,7 +77,7 @@ execute_process(
 # adds dev mode files
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_executable(palera1n
-            checkra1n.c
+#            checkra1n.c
             checkra1n-kpf-pongo.c
             ramdisk.dmg.c
             binpack.dmg.c
