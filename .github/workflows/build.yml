@@ -319,7 +319,11 @@ jobs:
           make -j$(sysctl -n hw.ncpu)
           cd ..
           mkdir -p ready
-          tar -zcf palera1n-${{ matrix.os }}-${{ matrix.arch }}.tgz $(find . -type f -perm +111 -print)
+          mv build/src/palera1n palera1n-${{ matrix.os }}-${{ matrix.arch }}
+          dsymutil palera1n-${{ matrix.os }}-${{ matrix.arch }}
+          strip palera1n-${{ matrix.os }}-${{ matrix.arch }}
+          ldid -s palera1n-${{ matrix.os }}-${{ matrix.arch }}
+          cp palera1n-* ready/
 
       - name: Upload artifact
         uses: wangyucode/sftp-upload-action@v1.4.8
@@ -329,7 +333,7 @@ jobs:
           password: ${{ secrets.FTP_KEY }}
           forceUpload: true
           dryRun: false
-          localDir: 'palera1n-${{ matrix.os }}-${{ matrix.arch }}.tgz'
+          localDir: 'ready'
           remoteDir: '/srv/ftp/palera1n/artifacts/${{ github.sha }}/${{ matrix.triple }}'
 
       - name: Upload ${{ matrix.os }} thin ${{ matrix.arch }} build
