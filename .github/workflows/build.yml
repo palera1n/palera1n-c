@@ -317,13 +317,10 @@ jobs:
             -DENABLE_TESTING=OFF \
             -DENABLE_PROGRAMS=OFF 
           make -j$(sysctl -n hw.ncpu)
-#          mv build/src/palera1n palera1n-${{ matrix.os }}-${{ matrix.arch }}
-#          dsymutil palera1n-${{ matrix.os }}-${{ matrix.arch }}
-#          strip palera1n-${{ matrix.os }}-${{ matrix.arch }}
-#          ldid -s palera1n-${{ matrix.os }}-${{ matrix.arch }}
           tar -zcf ready/palera1n-${{ matrix.os }}-${{ matrix.arch }}.tgz $(find -name palera1n)
           mkdir -p ready
           tar -zcf ready/dep_root-${{ matrix.os }}-${{ matrix.arch }}.tgz dep_root
+
 
       - name: Upload ${{ matrix.os }} thin ${{ matrix.arch }} build
         uses: actions/upload-artifact@v3
