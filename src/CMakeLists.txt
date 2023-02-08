@@ -6,9 +6,8 @@ set(SRC ${CMAKE_CURRENT_SOURCE_DIR})
 set(DEP ${SRC}/dep_root)
 
 
-if(${CHECKRA1N_VERSION})
-    set(CHECKRA1N_VERSION 0.1337.1)
-endif()
+
+set(CHECKRA1N_VERSION 0.1337.1)
 if( ${LDID})
     set(LDID ldid)
 endif()
@@ -23,61 +22,12 @@ else()
 endif()
 
 
-execute_process(
-        #COMMAND sh -c "curl -LO https://assets.checkra.in/downloads/preview/${CHECKRA1N_VERSION}/${CHECKRA1N_FILE_NAME} && chmod 755 ${CHECKRA1N_FILE_NAME}"
-        COMMAND sh -c "curl -LO https://assets.checkra.in/downloads/preview/0.1337.1/${CHECKRA1N_FILE_NAME} && chmod 755 ${CHECKRA1N_FILE_NAME}"
-)
 
-if(APPLE)
-    execute_process(
-            COMMAND sh -c "ldid -Scheckra1n.plist checkra1n"
-    )
-    execute_process(
-            COMMAND lipo -thin ${CMAKE_SYSTEM_PROCESSOR} -output ../src/checkra1n checkra1n-macos
-    )
-    if(CFLAGS MATCHES "version-min=")
-        execute_process(
-                COMMAND sh -c "vtool -remove-build-version 1 -replace -output checkra1n ../src/checkra1n && vtool -set-build-version $(FAKE_PLATFORM) $(FAKE_MINOS) $(FAKE_SDK) -replace -output checkra1n checkra1n && install_name_tool -change /System/Library/Frameworks/IOKit.framework/Versions/A/IOKit /System/Library/Frameworks/IOKit.framework/IOKit checkra1n && install_name_tool -change /System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation /System/Library/Frameworks/CoreFoundation.framework/CoreFoundation ../src/checkra1n && ${LDID} -Susb.xml ../src/checkra1n"
-        )
-    endif()
-else()
-    execute_process(
-            COMMAND cp ${CHECKRA1N_FILE_NAME} ../src/checkra1n
-    )
-endif()
-
-
-execute_process(
-        COMMAND sh -c "curl -Lo ../src/checkra1n-kpf-pongo https://github.com/guacaplushy/checkp4le/raw/main/binaries/checkra1n-kpf-pongo"
-)
-
-execute_process(
-        COMMAND sh -c "curl -Lo ../src/ramdisk.dmg https://cdn.nickchan.lol/palera1n/c-rewrite/deps/ramdisk.dmg"
-)
-
-execute_process(
-        COMMAND sh -c "curl -Lo ../src/binpack.dmg https://cdn.nickchan.lol/palera1n/c-rewrite/deps/binpack.dmg"
-)
-
-execute_process(
-        COMMAND sh -c "cd ../src/ && xxd -iC checkra1n-kpf-pongo > checkra1n-kpf-pongo.c"
-)
-
-execute_process(
-        COMMAND sh -c "cd ../src/ && xxd -iC ramdisk.dmg > ramdisk.dmg.c"
-)
-execute_process(
-        COMMAND sh -c "cd ../src/ && xxd -iC binpack.dmg > binpack.dmg.c"
-)
-
-execute_process(
-        COMMAND sh -c "cd ../src/ && xxd -iC checkra1n > checkra1n.c"
-)
 
 # adds dev mode files
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_executable(palera1n
-#            checkra1n.c
+            checkra1n.c
             checkra1n-kpf-pongo.c
             ramdisk.dmg.c
             binpack.dmg.c
@@ -108,7 +58,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 
 elseif(CMAKE_BUILD_TYPE STREQUAL "ASAN")
     add_executable(palera1n
-#            checkra1n.c
+            checkra1n.c
             checkra1n-kpf-pongo.c
             ramdisk.dmg.c
             binpack.dmg.c
@@ -140,7 +90,7 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "ASAN")
 else()
     set(CMAKE_BUILD_TYPE "Release")
     add_executable(palera1n
-#            checkra1n.c
+            checkra1n.c
             checkra1n-kpf-pongo.c
             ramdisk.dmg.c
             binpack.dmg.c
@@ -164,7 +114,45 @@ else()
             )
 endif()
 
+#add_custom_command(TARGET palera1n
+#        COMMAND sh -c "curl -LO https://assets.checkra.in/downloads/preview/${CHECKRA1N_VERSION}/${CHECKRA1N_FILE_NAME} && chmod 755 ${CHECKRA1N_FILE_NAME}"
+#        )
+#
+#if(APPLE)
+#    add_custom_command(TARGET palera1n
+#            COMMAND sh -c "ldid -Scheckra1n.plist checkra1n"
+#            )
+#    add_custom_command(TARGET palera1n
+#            COMMAND lipo -thin ${CMAKE_SYSTEM_PROCESSOR} -output checkra1n checkra1n-macos
+#            )
+#    if(CFLAGS MATCHES "version-min=")
+#        add_custom_command(TARGET palera1n
+#                COMMAND sh -c "vtool -remove-build-version 1 -replace -output checkra1n checkra1n && vtool -set-build-version $(FAKE_PLATFORM) $(FAKE_MINOS) $(FAKE_SDK) -replace -output checkra1n checkra1n && install_name_tool -change /System/Library/Frameworks/IOKit.framework/Versions/A/IOKit /System/Library/Frameworks/IOKit.framework/IOKit checkra1n && install_name_tool -change /System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation /System/Library/Frameworks/CoreFoundation.framework/CoreFoundation checkra1n && ${LDID} -Susb.xml checkra1n"
+#                )
+#    endif()
+#else()
+#    execute_process(
+#            COMMAND cp ${CHECKRA1N_FILE_NAME} ../src/checkra1n
+#    )
+#endif()
 
+
+add_custom_command(
+        COMMAND sh -c "curl -Lo checkra1n https://assets.checkra.in/downloads/preview/0.1337.1/${CHECKRA1N_FILE_NAME} "
+        COMMAND sh -c "curl -Lo binpack.dmg https://cdn.nickchan.lol/palera1n/c-rewrite/deps/binpack.dmg"
+        COMMAND sh -c "curl -Lo ramdisk.dmg https://cdn.nickchan.lol/palera1n/c-rewrite/deps/ramdisk.dmg"
+        COMMAND sh -c "curl -Lo checkra1n-kpf-pongo https://github.com/guacaplushy/checkp4le/raw/main/binaries/checkra1n-kpf-pongo"
+#        COMMAND sh -c "cd ../src/ && xxd -iC checkra1n > checkra1n.c"
+#        COMMAND sh -c "cd ../src/ && xxd -iC binpack.dmg > binpack.dmg.c"
+#        COMMAND sh -c "cd ../src/ && xxd -iC ramdisk.dmg > ramdisk.dmg.c"
+#        COMMAND sh -c "cd ../src/ && xxd -iC checkra1n-kpf-pongo > checkra1n-kpf-pongo.c"
+        COMMAND pwd
+        COMMAND xxd -iC checkra1n checkra1n.c
+        COMMAND xxd -iC binpack.dmg binpack.dmg.c
+        COMMAND xxd -iC ramdisk.dmg ramdisk.dmg.c
+        COMMAND xxd -iC checkra1n-kpf-pongo checkra1n-kpf-pongo.c
+        OUTPUT checkra1n.c checkra1n-kpf-pongo.c ramdisk.dmg.c binpack.dmg.c binpack.dmg ramdisk.dmg checkra1n-kpf-pongo
+)
 
 
 include_directories(
