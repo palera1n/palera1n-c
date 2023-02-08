@@ -473,37 +473,11 @@ jobs:
           git clone --depth=1 https://github.com/libimobiledevice/libirecovery
           git clone --depth=1 https://github.com/libimobiledevice/libusbmuxd
           git clone --depth=1 https://github.com/libimobiledevice/libimobiledevice
-#      - name: Download dependencies (embedded binaries)
-#        run: |
-#          make -j5 download-deps
-#
-#      - name: Download dependencies (source code)
-#        run: |
-#          curl -LOOOOOOO \
-#            https://github.com/Mbed-TLS/mbedtls/archive/refs/tags/v${{ env.MBEDTLS_VERSION }}.tar.gz \
-#            https://github.com/libusb/libusb/releases/download/v${{ env.LIBUSB_VERSION }}/libusb-${{ env.LIBUSB_VERSION }}.tar.bz2 \
-#            https://mirror-hk.koddos.net/gnu/readline/readline-${{ env.READLINE_VERSION }}.tar.gz \
-#            https://www.jedsoft.org/releases/slang/slang-${{ env.SLANG_VERSION }}.tar.bz2 \
-#             \
-#            http://www.nico.schottelius.org/software/gpm/archives/gpm-${{ env.GPM_VERSION }}.tar.gz \
-#            https://github.com/rpm-software-management/popt/archive/refs/tags/popt-${{ env.POPT_VERSION }}-release.tar.gz
-#
-#          tar -xf v${{ env.MBEDTLS_VERSION }}.tar.gz
-#          tar -xjf libusb-${{ env.LIBUSB_VERSION }}.tar.bz2
-#          tar -xf readline-${{ env.READLINE_VERSION }}.tar.gz
-#          tar -xjf slang-${{ env.SLANG_VERSION }}.tar.bz2
-#          tar -xf newt-${{ env.NEWT_VERSION }}.tar.gz
-#          tar -xf gpm-${{ env.GPM_VERSION }}.tar.gz
-#          tar -xf popt-${{ env.POPT_VERSION }}-release.tar.gz
-#          git clone --depth=1 https://github.com/libimobiledevice/libplist
-#          git clone --depth=1 https://github.com/libimobiledevice/libimobiledevice-glue
-#          git clone --depth=1 https://github.com/libimobiledevice/libirecovery
-#          git clone --depth=1 https://github.com/libimobiledevice/libusbmuxd
-#          git clone --depth=1 https://github.com/libimobiledevice/libimobiledevice
 
       - name: Build Mbed TLS
         run: |
-          cd mbedtls
+          cd mbedtls-${{ env.MBEDTLS_VERSION }}
+          cat ../patches/mbedtls/0001-Allow-empty-x509-cert-issuer.patch | patch -sN -d . -p1
           mkdir build
           cd build
           cmake .. \
@@ -525,7 +499,7 @@ jobs:
 
       - name: Build libusb
         run: |
-          cd libusb-1.0.26
+          cd libusb-${{ env.LIBUSB_VERSION }}
           ./configure ${{ env.CONFIGURE_ARGS }} --disable-udev
           make -j$(nproc)
           make -j$(nproc) install DESTDIR=${{ env.DESTDIR }}
@@ -533,7 +507,7 @@ jobs:
 
       - name: Build readline
         run: |
-          cd readline
+          cd readline-${{ env.READLINE_VERSION }}
           ./configure ${{ env.CONFIGURE_ARGS }}
           make -j$(nproc)
           make -j$(nproc) install DESTDIR=${{ env.DESTDIR }}
@@ -541,7 +515,7 @@ jobs:
 
       - name: Build S-Lang
         run: |
-          cd slang
+          cd slang-${{ env.SLANG_VERSION }}
           ./configure \
             ${{ env.CONFIGURE_ARGS }} \
             --without-x \
@@ -556,7 +530,8 @@ jobs:
 
       - name: Build GPM
         run: |
-          cd gpm
+          cd gpm-${{ env.GPM_VERSION }}
+          cat ../patches/gpm/*.patch | patch -sN -d . -p1
           ./autogen.sh
           ./configure \
             ${{ env.CONFIGURE_ARGS }}
@@ -566,8 +541,7 @@ jobs:
 
       - name: Build popt
         run: |
-          cd popt
-          git checkout 28a9151
+          cd popt-popt-${{ env.POPT_VERSION }}-release
           autoreconf -fiv
           ./configure \
             ${{ env.CONFIGURE_ARGS }} \
@@ -647,6 +621,7 @@ jobs:
           cd ..
           sudo rm /usr/local
           sudo mv /usr/local.bak /usr/local
+
 
       - name: Build palera1n
         run: |
