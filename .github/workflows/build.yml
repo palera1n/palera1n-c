@@ -319,7 +319,6 @@ jobs:
           make -j$(sysctl -n hw.ncpu)
           mkdir -p ready
           tar -zcf ready/palera1n-${{ matrix.os }}-${{ matrix.arch }}.tgz $(find . -type f -perm +111 -print)
-          tar -zcf ready/dep_root-${{ matrix.os }}-${{ matrix.arch }}.tgz dep_root
 
 
       - name: Upload ${{ matrix.os }} thin ${{ matrix.arch }} build
