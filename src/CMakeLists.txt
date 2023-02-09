@@ -232,7 +232,7 @@ target_include_directories(palera1n PRIVATE
         ${DEP}/include
         )
 
-if(${STATIC})
+#if(${STATIC})
     target_link_libraries(palera1n
             ${DEP}/lib/libimobiledevice-1.0.a
             ${DEP}/lib/libirecovery-1.0.a
@@ -245,44 +245,48 @@ if(${STATIC})
             ${DEP}/lib/libreadline.a
             ${DEP}/lib/libusb-1.0.a
             )
-else()
-    find_library(LIBIMOBILEDEVICE libimobiledevice)
-    if (NOT CORE_FOUNDATION)
-        message(FATAL_ERROR "libimobiledevice not found")
-    endif()
-    target_link_libraries(palera1n ${LIBIMOBILEDEVICE})
+set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+set(BUILD_SHARED_LIBS OFF)
+set(CMAKE_EXE_LINKER_FLAGS "-static")
 
-    find_library(LIR libirecovery)
-    if (NOT SYSCONF)
-        message(FATAL_ERROR "libirecovery not found")
-    endif()
-    target_link_libraries(palera1n ${LIR})
-
-    find_library(USBMUXD usbmuxd)
-    if (NOT SEC)
-        message(FATAL_ERROR "usbmuxd not found")
-    endif()
-    target_link_libraries(palera1n ${USBMUXD})
-
-    find_library(GLUE libimobiledevice-glue)
-    if (NOT IOKIT)
-        message(FATAL_ERROR "libimobiledevice-glue not found")
-    endif()
-    target_link_libraries(palera1n ${GLUE})
-
-#    target_link_libraries(palera1n
-#            imobiledevice-1.0
-#            irecovery-1.0
-#            usbmuxd-2.0
-#            imobiledevice-glue-1.0
-#            plist-2.0
-#            mbedtls
-#            mbedcrypto
-#            mbedx509
-#            readline
-#            usb-1.0
-#            )
-endif()
+#else()
+#    find_library(LIBIMOBILEDEVICE libimobiledevice)
+#    if (NOT CORE_FOUNDATION)
+#        message(FATAL_ERROR "libimobiledevice not found")
+#    endif()
+#    target_link_libraries(palera1n ${LIBIMOBILEDEVICE})
+#
+#    find_library(LIR libirecovery)
+#    if (NOT SYSCONF)
+#        message(FATAL_ERROR "libirecovery not found")
+#    endif()
+#    target_link_libraries(palera1n ${LIR})
+#
+#    find_library(USBMUXD usbmuxd)
+#    if (NOT SEC)
+#        message(FATAL_ERROR "usbmuxd not found")
+#    endif()
+#    target_link_libraries(palera1n ${USBMUXD})
+#
+#    find_library(GLUE libimobiledevice-glue)
+#    if (NOT IOKIT)
+#        message(FATAL_ERROR "libimobiledevice-glue not found")
+#    endif()
+#    target_link_libraries(palera1n ${GLUE})
+#
+##    target_link_libraries(palera1n
+##            imobiledevice-1.0
+##            irecovery-1.0
+##            usbmuxd-2.0
+##            imobiledevice-glue-1.0
+##            plist-2.0
+##            mbedtls
+##            mbedcrypto
+##            mbedx509
+##            readline
+##            usb-1.0
+##            )
+#endif()
 #if(APPLE)
 #    add_compile_options(palera1n
 #            -framework CoreFoundation
