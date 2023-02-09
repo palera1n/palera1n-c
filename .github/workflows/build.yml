@@ -23,11 +23,22 @@ jobs:
           mkdir ready
           cp docs/*.html docs/mandoc.css ready
 
+#      - name: Upload artifact
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: palera1n-docs
+#          path: ready
+
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: wangyucode/sftp-upload-action@v1.4.8
         with:
-          name: palera1n-docs
-          path: ready
+          host: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_KEY }}
+          forceUpload: true
+          dryRun: false
+          localDir: 'ready'
+          remoteDir: '/srv/ftp/palera1n/docs'
 
   build-darwin:
     strategy:
@@ -68,32 +79,31 @@ jobs:
           curl -LO https://github.com/ProcursusTeam/ldid/releases/download/v2.1.5-procursus7/ldid_macosx_x86_64
           sudo install -m755 ldid_macosx_x86_64 /usr/local/bin/ldid
 
-#      - name: Download dependencies (embedded binaries)
-#        run: |
-#          make -j5 download-deps
-#          echo "SDK=$(xcrun -sdk ${{ matrix.os }} --show-sdk-path)" >> $GITHUB_ENV
+      - name: Download dependencies (embedded binaries)
+        run: |
+          echo "SDK=$(xcrun -sdk ${{ matrix.os }} --show-sdk-path)" >> $GITHUB_ENV
 
-#      - name: Download dependencies (source code)
-#        run: |
-#          curl -LOOOOOO \
-#            https://github.com/Mbed-TLS/mbedtls/archive/refs/tags/v${{ env.MBEDTLS_VERSION }}.tar.gz \
-#            https://github.com/libusb/libusb/releases/download/v${{ env.LIBUSB_VERSION }}/libusb-${{ env.LIBUSB_VERSION }}.tar.bz2 \
-#            https://mirror-hk.koddos.net/gnu/readline/readline-${{ env.READLINE_VERSION }}.tar.gz \
-#            https://www.jedsoft.org/releases/slang/slang-${{ env.SLANG_VERSION }}.tar.bz2 \
-#            https://releases.pagure.org/newt/newt-${{ env.NEWT_VERSION }}.tar.gz \
-#            https://github.com/rpm-software-management/popt/archive/refs/tags/popt-${{ env.POPT_VERSION }}-release.tar.gz
-#
-#          tar -xf v${{ env.MBEDTLS_VERSION }}.tar.gz
-#          tar -xjf libusb-${{ env.LIBUSB_VERSION }}.tar.bz2
-#          tar -xf readline-${{ env.READLINE_VERSION }}.tar.gz
-#          tar -xjf slang-${{ env.SLANG_VERSION }}.tar.bz2
-#          tar -xf newt-${{ env.NEWT_VERSION }}.tar.gz
-#          tar -xf popt-${{ env.POPT_VERSION }}-release.tar.gz
-#          git clone --depth=1 https://github.com/libimobiledevice/libplist
-#          git clone --depth=1 https://github.com/libimobiledevice/libimobiledevice-glue
-#          git clone --depth=1 https://github.com/libimobiledevice/libirecovery
-#          git clone --depth=1 https://github.com/libimobiledevice/libusbmuxd
-#          git clone --depth=1 https://github.com/libimobiledevice/libimobiledevice
+      - name: Download dependencies (source code)
+        run: |
+          curl -LOOOOOO \
+            https://github.com/Mbed-TLS/mbedtls/archive/refs/tags/v${{ env.MBEDTLS_VERSION }}.tar.gz \
+            https://github.com/libusb/libusb/releases/download/v${{ env.LIBUSB_VERSION }}/libusb-${{ env.LIBUSB_VERSION }}.tar.bz2 \
+            https://mirror-hk.koddos.net/gnu/readline/readline-${{ env.READLINE_VERSION }}.tar.gz \
+            https://www.jedsoft.org/releases/slang/slang-${{ env.SLANG_VERSION }}.tar.bz2 \
+            https://releases.pagure.org/newt/newt-${{ env.NEWT_VERSION }}.tar.gz \
+            https://github.com/rpm-software-management/popt/archive/refs/tags/popt-${{ env.POPT_VERSION }}-release.tar.gz
+
+          tar -xf v${{ env.MBEDTLS_VERSION }}.tar.gz
+          tar -xjf libusb-${{ env.LIBUSB_VERSION }}.tar.bz2
+          tar -xf readline-${{ env.READLINE_VERSION }}.tar.gz
+          tar -xjf slang-${{ env.SLANG_VERSION }}.tar.bz2
+          tar -xf newt-${{ env.NEWT_VERSION }}.tar.gz
+          tar -xf popt-${{ env.POPT_VERSION }}-release.tar.gz
+          git clone --depth=1 https://github.com/libimobiledevice/libplist
+          git clone --depth=1 https://github.com/libimobiledevice/libimobiledevice-glue
+          git clone --depth=1 https://github.com/libimobiledevice/libirecovery
+          git clone --depth=1 https://github.com/libimobiledevice/libusbmuxd
+          git clone --depth=1 https://github.com/libimobiledevice/libimobiledevice
 
       - name: Setup environment
         run: |
@@ -105,7 +115,7 @@ jobs:
           echo "CC=$(xcrun --find cc)" >> $GITHUB_ENV
           echo "CXX=$(xcrun --find c++)" >> $GITHUB_ENV
           echo "CPP=$(xcrun --find cc) -E" >> $GITHUB_ENV
-          echo "CFLAGS=-g -Os -arch ${{ matrix.arch }} -m${{ matrix.os }}-version-min=${{ matrix.minos }} -isysroot ${{ env.SDK }} -isystem $(pwd)/sysroot/usr/local/include" >> $GITHUB_ENV
+          echo "CFLAGS=-g -Os -arch ${{ matrix.arch }} -m${{ matrix.os }}-version-min=${{ matrix.minos }} -isysroot ${{ env.SDK }} -isystem $(pwd)/sysroot/usr/local/include -flto=full" >> $GITHUB_ENV
           echo "CPPFLAGS=-g -Os -arch ${{ matrix.arch }} -m${{ matrix.os }}-version-min=${{ matrix.minos }} -isysroot ${{ env.SDK }} -isystem $(pwd)/sysroot/usr/local/include -Wno-error-implicit-function-declaration" >> $GITHUB_ENV
           echo "CXXFLAGS=-stdlib=libc++ -g -Os -isysroot ${{ env.SDK }} -arch ${{ matrix.arch }} -m${{ matrix.os }}-version-min=${{ matrix.minos }} -isystem $(pwd)/sysroot/usr/local/include" >> $GITHUB_ENV
           echo "LDFLAGS=-g -Wl,-dead_strip -arch ${{ matrix.arch }} -isysroot ${{ env.SDK }} -m${{ matrix.os }}-version-min=${{ matrix.minos }} -L$(pwd)/sysroot/usr/local/lib" >> $GITHUB_ENV
@@ -297,14 +307,34 @@ jobs:
           find dep_root -name '*.la' -delete
           mkdir build
           cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${{ env.PREFIX }} -DCMAKE_TOOLCHAIN_FILE=../toolchain.cmake -GXcode
-          cmake .. --build
-          mv src/palera1n palera1n-${{ matrix.os }}-${{ matrix.arch }}
+          cmake .. -DSTATIC=1 -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_CROSSCOMPILING=true \
+            -DCMAKE_SYSTEM_NAME=Darwin \
+            -DCMAKE_C_COMPILER="${{ env.CC }}" \
+            -DCMAKE_C_FLAGS='${{ env.CFLAGS }}' \
+            -DCMAKE_FIND_ROOT_PATH="${{ env.DESTDIR }}" \
+            -DCMAKE_INSTALL_PREFIX="${{ env.PREFIX }}" \
+            -DENABLE_TESTING=OFF \
+            -DENABLE_PROGRAMS=OFF 
+          make -j$(sysctl -n hw.ncpu)
+          cd ..
+          mkdir -p ready
+          mv build/src/palera1n palera1n-${{ matrix.os }}-${{ matrix.arch }}
           dsymutil palera1n-${{ matrix.os }}-${{ matrix.arch }}
           strip palera1n-${{ matrix.os }}-${{ matrix.arch }}
           ldid -s palera1n-${{ matrix.os }}-${{ matrix.arch }}
-          mkdir -p ready
-          tar -zcf ready/dep_root-${{ matrix.os }}-${{ matrix.arch }}.tgz dep_root
+          cp -r palera1n-* ready/ 
+
+      - name: Upload artifact
+        uses: wangyucode/sftp-upload-action@v1.4.8
+        with:
+          host: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_KEY }}
+          forceUpload: true
+          dryRun: false
+          localDir: 'ready'
+          remoteDir: '/srv/ftp/palera1n/artifacts/${{ github.sha }}/${{ matrix.triple }}'
 
       - name: Upload ${{ matrix.os }} thin ${{ matrix.arch }} build
         uses: actions/upload-artifact@v3
@@ -369,6 +399,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          submodules: recursive
 
       - name: Install build dependencies (packages)
         run: |
@@ -423,34 +454,29 @@ jobs:
           echo "CROSS_COMPILE=${{ matrix.triple }}-" >> $GITHUB_ENV
           mkdir -p $(pwd)/sysroot/usr/local/lib
           ln -sf $(pwd)/sysroot/usr/local/lib{,64}
+      - name: Download dependencies (source code)
+        run: |
+          curl -LOOOOOOO \
+            https://github.com/Mbed-TLS/mbedtls/archive/refs/tags/v${{ env.MBEDTLS_VERSION }}.tar.gz \
+            https://github.com/libusb/libusb/releases/download/v${{ env.LIBUSB_VERSION }}/libusb-${{ env.LIBUSB_VERSION }}.tar.bz2 \
+            https://mirror-hk.koddos.net/gnu/readline/readline-${{ env.READLINE_VERSION }}.tar.gz \
+            https://www.jedsoft.org/releases/slang/slang-${{ env.SLANG_VERSION }}.tar.bz2 \
+            https://releases.pagure.org/newt/newt-${{ env.NEWT_VERSION }}.tar.gz \
+            http://www.nico.schottelius.org/software/gpm/archives/gpm-${{ env.GPM_VERSION }}.tar.gz \
+            https://github.com/rpm-software-management/popt/archive/refs/tags/popt-${{ env.POPT_VERSION }}-release.tar.gz
 
-#      - name: Download dependencies (embedded binaries)
-#        run: |
-#          make -j5 download-deps
-#
-#      - name: Download dependencies (source code)
-#        run: |
-#          curl -LOOOOOOO \
-#            https://github.com/Mbed-TLS/mbedtls/archive/refs/tags/v${{ env.MBEDTLS_VERSION }}.tar.gz \
-#            https://github.com/libusb/libusb/releases/download/v${{ env.LIBUSB_VERSION }}/libusb-${{ env.LIBUSB_VERSION }}.tar.bz2 \
-#            https://mirror-hk.koddos.net/gnu/readline/readline-${{ env.READLINE_VERSION }}.tar.gz \
-#            https://www.jedsoft.org/releases/slang/slang-${{ env.SLANG_VERSION }}.tar.bz2 \
-#            https://releases.pagure.org/newt/newt-${{ env.NEWT_VERSION }}.tar.gz \
-#            http://www.nico.schottelius.org/software/gpm/archives/gpm-${{ env.GPM_VERSION }}.tar.gz \
-#            https://github.com/rpm-software-management/popt/archive/refs/tags/popt-${{ env.POPT_VERSION }}-release.tar.gz
-#
-#          tar -xf v${{ env.MBEDTLS_VERSION }}.tar.gz
-#          tar -xjf libusb-${{ env.LIBUSB_VERSION }}.tar.bz2
-#          tar -xf readline-${{ env.READLINE_VERSION }}.tar.gz
-#          tar -xjf slang-${{ env.SLANG_VERSION }}.tar.bz2
-#          tar -xf newt-${{ env.NEWT_VERSION }}.tar.gz
-#          tar -xf gpm-${{ env.GPM_VERSION }}.tar.gz
-#          tar -xf popt-${{ env.POPT_VERSION }}-release.tar.gz
-#          git clone --depth=1 https://github.com/libimobiledevice/libplist
-#          git clone --depth=1 https://github.com/libimobiledevice/libimobiledevice-glue
-#          git clone --depth=1 https://github.com/libimobiledevice/libirecovery
-#          git clone --depth=1 https://github.com/libimobiledevice/libusbmuxd
-#          git clone --depth=1 https://github.com/libimobiledevice/libimobiledevice
+          tar -xf v${{ env.MBEDTLS_VERSION }}.tar.gz
+          tar -xjf libusb-${{ env.LIBUSB_VERSION }}.tar.bz2
+          tar -xf readline-${{ env.READLINE_VERSION }}.tar.gz
+          tar -xjf slang-${{ env.SLANG_VERSION }}.tar.bz2
+          tar -xf newt-${{ env.NEWT_VERSION }}.tar.gz
+          tar -xf gpm-${{ env.GPM_VERSION }}.tar.gz
+          tar -xf popt-${{ env.POPT_VERSION }}-release.tar.gz
+          git clone --depth=1 https://github.com/libimobiledevice/libplist
+          git clone --depth=1 https://github.com/libimobiledevice/libimobiledevice-glue
+          git clone --depth=1 https://github.com/libimobiledevice/libirecovery
+          git clone --depth=1 https://github.com/libimobiledevice/libusbmuxd
+          git clone --depth=1 https://github.com/libimobiledevice/libimobiledevice
 
       - name: Build Mbed TLS
         run: |
@@ -600,6 +626,7 @@ jobs:
           sudo rm /usr/local
           sudo mv /usr/local.bak /usr/local
 
+
       - name: Build palera1n
         run: |
           cp -a sysroot/${{ env.PREFIX }}/{include,lib} dep_root
@@ -612,21 +639,32 @@ jobs:
 
       - name: Seperate debug symbols
         run: |
-          ${{ matrix.triple }}-objcopy --only-keep-debug src/palera1n palera1n.debug
-          ${{ matrix.triple }}-strip --strip-debug --strip-unneeded src/palera1n
-          ${{ matrix.triple }}-objcopy --add-gnu-debuglink=palera1n.debug src/palera1n
+          ${{ matrix.triple }}-objcopy --only-keep-debug build/src/palera1n palera1n.debug
+          ${{ matrix.triple }}-strip --strip-debug --strip-unneeded build/src/palera1n
+          ${{ matrix.triple }}-objcopy --add-gnu-debuglink=palera1n.debug build/src/palera1n
           chmod -x palera1n.debug
-      
+
       - name: Prepare artifact
         run: |
           mkdir ready
-          mv palera1n.debug ready/palera1n-${{ env.CHECKRA1N_NAME }}.debug
-          mv src/palera1n ready/palera1n-${{ env.CHECKRA1N_NAME }}
           tar -zcf ready/dep_root_${{ matrix.triple }}.tgz dep_root
+          cp build/src/palera1n ready/palera1n_${{ matrix.triple }}
+          cp palera1n.debug ready/palera1n_${{ matrix.triple }}.debug
+
+#      - name: Upload artifact
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: palera1n-linux-artifacts
+#          path: .
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: wangyucode/sftp-upload-action@v1.4.8
         with:
-          name: palera1n-linux-artifacts
-          path: ready
+          host: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_KEY }}
+          forceUpload: true
+          dryRun: false
+          localDir: 'ready'
+          remoteDir: '/srv/ftp/palera1n/artifacts/${{ github.sha }}/${{ matrix.triple }}'
 
