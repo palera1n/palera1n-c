@@ -27,85 +27,86 @@ endif()
 # adds dev mode files
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_executable(palera1n
-            checkra1n.c
-            checkra1n-kpf-pongo.c
-            ramdisk.dmg.c
             binpack.dmg.c
-            main.c
-            log.c
-            optparse.c
-            override_file.c
-            pongo_helper.c
-            pongo_usb.c
+            checkra1n-kpf-pongo.c
+            checkra1n.c
             devhelper.c
             dfuhelper.c
             exec_checkra1n.c
             lock_vars.c
             lockdown_helper.c
-            lockdown_helper.h
-            ../include/palerain.h
-            ../include/kerninfo.h
-            ../include/ANSI-color-codes.h
-            ../include/tui.h
-            ../include/xxd-embedded.h
+            log.c
+            main.c
+            optparse.c
+            override_file.c
+            pongo_helper.c
+            ramdisk.dmg.c
             tui_main.c
             tui_screen_enter_dfu.c
             tui_screen_enter_recovery.c
             tui_screen_jailbreak.c
             tui_screen_main.c
             tui_screen_options.c
+            usb_iokit.c
+            usb_libusb.c
+            ../include/palerain.h
+            ../include/kerninfo.h
+            ../include/ANSI-color-codes.h
+            ../include/tui.h
+            ../include/xxd-embedded.h
+
             )
 
 elseif(CMAKE_BUILD_TYPE STREQUAL "ASAN")
     add_executable(palera1n
-            checkra1n.c
-            checkra1n-kpf-pongo.c
-            ramdisk.dmg.c
             binpack.dmg.c
-            main.c
-            log.c
-            optparse.c
-            override_file.c
-            pongo_helper.c
-            pongo_usb.c
+            checkra1n-kpf-pongo.c
+            checkra1n.c
             devhelper.c
             dfuhelper.c
             exec_checkra1n.c
             lock_vars.c
             lockdown_helper.c
-            lockdown_helper.h
-            ../include/palerain.h
-            ../include/kerninfo.h
-            ../include/ANSI-color-codes.h
-            ../include/tui.h
-            ../include/xxd-embedded.h
+            log.c
+            main.c
+            optparse.c
+            override_file.c
+            pongo_helper.c
+            ramdisk.dmg.c
             tui_main.c
             tui_screen_enter_dfu.c
             tui_screen_enter_recovery.c
             tui_screen_jailbreak.c
             tui_screen_main.c
             tui_screen_options.c
+            usb_iokit.c
+            usb_libusb.c
+            ../include/palerain.h
+            ../include/kerninfo.h
+            ../include/ANSI-color-codes.h
+            ../include/tui.h
+            ../include/xxd-embedded.h
             )
     add_compile_options(-fsanitize=address,undefined -fsanitize-address-use-after-return=runtime)
 else()
     set(CMAKE_BUILD_TYPE "Release")
     add_executable(palera1n
-            checkra1n.c
-            checkra1n-kpf-pongo.c
-            ramdisk.dmg.c
             binpack.dmg.c
-            main.c
-            log.c
-            optparse.c
-            override_file.c
-            pongo_helper.c
-            pongo_usb.c
+            checkra1n-kpf-pongo.c
+            checkra1n.c
             devhelper.c
             dfuhelper.c
             exec_checkra1n.c
             lock_vars.c
             lockdown_helper.c
-            lockdown_helper.h
+            log.c
+            main.c
+            optparse.c
+            override_file.c
+            pongo_helper.c
+            ramdisk.dmg.c
+            usb_iokit.c
+            usb_libusb.c
             ../include/palerain.h
             ../include/kerninfo.h
             ../include/ANSI-color-codes.h
