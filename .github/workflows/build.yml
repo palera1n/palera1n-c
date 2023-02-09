@@ -303,7 +303,8 @@ jobs:
             -DCMAKE_FIND_ROOT_PATH="${{ env.DESTDIR }}" \
             -DCMAKE_INSTALL_PREFIX="${{ env.PREFIX }}" \
             -DENABLE_TESTING=OFF \
-            -DENABLE_PROGRAMS=OFF 
+            -DENABLE_PROGRAMS=OFF \
+            -DSTATIC=1
           make -j$(sysctl -n hw.ncpu)
           cd ..
           mkdir -p ready
@@ -635,7 +636,13 @@ jobs:
           find dep_root -name '*.la' -delete
           mkdir build
           cd build
-          CC="${{ matrix.triple }}-gcc" cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${{ env.PREFIX }} -DCMAKE_FIND_ROOT_PATH=${{ env.DESTDIR }}${{ env.PREFIX }} -DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ONLY -DCMAKE_C_FLAGS="-I${{ env.DESTDIR }}${{ env.PREFIX }}/include -L${{ env.DESTDIR }}${{ env.PREFIX }}/lib -Wl,-rpath,${{ env.PREFIX }}/lib"
+          CC="${{ matrix.triple }}-gcc" cmake .. -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_INSTALL_PREFIX=${{ env.PREFIX }} \
+          -DCMAKE_FIND_ROOT_PATH=${{ env.DESTDIR }}${{ env.PREFIX }} \
+          -DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY \
+          -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ONLY \
+          -DCMAKE_C_FLAGS="-I${{ env.DESTDIR }}${{ env.PREFIX }}/include \
+          -L${{ env.DESTDIR }}${{ env.PREFIX }}/lib -Wl,-rpath,${{ env.PREFIX }}/lib"
           make -j$(nproc) CC="${{ matrix.triple }}-gcc"
 
       - name: Seperate debug symbols
