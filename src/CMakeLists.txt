@@ -246,18 +246,42 @@ if(${STATIC})
             ${DEP}/lib/libusb-1.0.a
             )
 else()
-    target_link_libraries(palera1n
-            imobiledevice-1.0
-            irecovery-1.0
-            usbmuxd-2.0
-            imobiledevice-glue-1.0
-            plist-2.0
-            mbedtls
-            mbedcrypto
-            mbedx509
-            readline
-            usb-1.0
-            )
+    find_library(LIBIMOBILEDEVICE libimobiledevice)
+    if (NOT CORE_FOUNDATION)
+        message(FATAL_ERROR "libimobiledevice not found")
+    endif()
+    target_link_libraries(palera1n ${LIBIMOBILEDEVICE})
+
+    find_library(LIR libirecovery)
+    if (NOT SYSCONF)
+        message(FATAL_ERROR "libirecovery not found")
+    endif()
+    target_link_libraries(palera1n ${LIR})
+
+    find_library(USBMUXD usbmuxd)
+    if (NOT SEC)
+        message(FATAL_ERROR "usbmuxd not found")
+    endif()
+    target_link_libraries(palera1n ${USBMUXD})
+
+    find_library(GLUE libimobiledevice-glue)
+    if (NOT IOKIT)
+        message(FATAL_ERROR "libimobiledevice-glue not found")
+    endif()
+    target_link_libraries(palera1n ${GLUE})
+
+#    target_link_libraries(palera1n
+#            imobiledevice-1.0
+#            irecovery-1.0
+#            usbmuxd-2.0
+#            imobiledevice-glue-1.0
+#            plist-2.0
+#            mbedtls
+#            mbedcrypto
+#            mbedx509
+#            readline
+#            usb-1.0
+#            )
 endif()
 #if(APPLE)
 #    add_compile_options(palera1n
