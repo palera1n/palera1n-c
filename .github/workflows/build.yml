@@ -642,7 +642,7 @@ jobs:
           -DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY \
           -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ONLY \
           -DCMAKE_C_FLAGS="-I${{ env.DESTDIR }}${{ env.PREFIX }}/include \
-          -L${{ env.DESTDIR }}${{ env.PREFIX }}/lib -Wl,-rpath,${{ env.PREFIX }}/lib"
+          -L${{ env.DESTDIR }}${{ env.PREFIX }}/lib -Wl,-rpath,${{ env.PREFIX }}/lib" -DSTATIC=1
           make -j$(nproc) CC="${{ matrix.triple }}-gcc"
 
       - name: Seperate debug symbols
