@@ -21,110 +21,65 @@ else()
     set(CHECKRA1N_FILE_NAME checkra1n-linux-${CMAKE_SYSTEM_PROCESSOR})
 endif()
 
-
+add_executable(palera1n
+        binpack.dmg.c
+        checkra1n-kpf-pongo.c
+        checkra1n.c
+        devhelper.c
+        dfuhelper.c
+        exec_checkra1n.c
+        lock_vars.c
+        lockdown_helper.c
+        log.c
+        main.c
+        optparse.c
+        override_file.c
+        pongo_helper.c
+        ramdisk.dmg.c
+        ../include/kerninfo.h
+        ../include/palerain.h
+        ../include/ANSI-color-codes.h
+        ../include/tui.h
+        ../include/xxd-embedded.h
+        )
 
 
 # adds dev mode files
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_executable(palera1n
-            binpack.dmg.c
-            checkra1n-kpf-pongo.c
-            checkra1n.c
-            devhelper.c
-            dfuhelper.c
-            exec_checkra1n.c
-            lock_vars.c
-            lockdown_helper.c
-            log.c
-            main.c
-            optparse.c
-            override_file.c
-            pongo_helper.c
-            ramdisk.dmg.c
-            tui_main.c
+    get_property(MY_TARGET_SOURCES TARGET palera1n PROPERTY SOURCES)
+    list(APPEND MY_TARGET_SOURCES tui_main.c
             tui_screen_enter_dfu.c
             tui_screen_enter_recovery.c
             tui_screen_jailbreak.c
             tui_screen_main.c
-            tui_screen_options.c
-            usb_iokit.c
-            usb_libusb.c
-            ../include/palerain.h
-            ../include/kerninfo.h
-            ../include/ANSI-color-codes.h
-            ../include/tui.h
-            ../include/xxd-embedded.h
+            tui_screen_options.c)
+    set_property(TARGET palera1n PROPERTY SOURCES ${MY_TARGET_SOURCES})
 
-            )
 
 elseif(CMAKE_BUILD_TYPE STREQUAL "ASAN")
-    add_executable(palera1n
-            binpack.dmg.c
-            checkra1n-kpf-pongo.c
-            checkra1n.c
-            devhelper.c
-            dfuhelper.c
-            exec_checkra1n.c
-            lock_vars.c
-            lockdown_helper.c
-            log.c
-            main.c
-            optparse.c
-            override_file.c
-            pongo_helper.c
-            ramdisk.dmg.c
-            tui_main.c
+    get_property(MY_TARGET_SOURCES TARGET palera1n PROPERTY SOURCES)
+    list(APPEND MY_TARGET_SOURCES tui_main.c
             tui_screen_enter_dfu.c
             tui_screen_enter_recovery.c
             tui_screen_jailbreak.c
             tui_screen_main.c
-            tui_screen_options.c
-            usb_iokit.c
-            usb_libusb.c
-            ../include/palerain.h
-            ../include/kerninfo.h
-            ../include/ANSI-color-codes.h
-            ../include/tui.h
-            ../include/xxd-embedded.h
-            )
+            tui_screen_options.c)
+    set_property(TARGET palera1n PROPERTY SOURCES ${MY_TARGET_SOURCES})
     add_compile_options(-fsanitize=address,undefined -fsanitize-address-use-after-return=runtime)
 else()
     set(CMAKE_BUILD_TYPE "Release")
-    add_executable(palera1n
-            binpack.dmg.c
-            checkra1n-kpf-pongo.c
-            checkra1n.c
-            devhelper.c
-            dfuhelper.c
-            exec_checkra1n.c
-            lock_vars.c
-            lockdown_helper.c
-            log.c
-            main.c
-            optparse.c
-            override_file.c
-            pongo_helper.c
-            ramdisk.dmg.c
-            usb_iokit.c
-            usb_libusb.c
-            ../include/palerain.h
-            ../include/kerninfo.h
-            ../include/ANSI-color-codes.h
-            ../include/tui.h
-            ../include/xxd-embedded.h
-            )
 endif()
 
-message("Testing for Clang/LLVM")
-string(TOLOWER CMAKE_C_COMPILER_ID COMPILER)
+#message("Testing for Clang/LLVM")
+#string(TOLOWER CMAKE_C_COMPILER_ID COMPILER)
 
-if(CMAKE_C_COMPILER_ID MATCHES "AppleClang" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
-    message("Using clang/llvm! Enabling -flto=full! Please make sure clang is up to date, or else compile will fail")
-    add_compile_options(-flto=full)
-else()
-    message("Not using clang/llvm! Using normal lto/no lto!")
-    add_compile_options(-flto)
-endif()
+#if(CMAKE_C_COMPILER_ID MATCHES "AppleClang" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
+#    message("Using clang/llvm! Enabling -flto=full! Please make sure clang is up to date, or else compile will fail")
+#    add_compile_options(-flto=full)
+#else()
+#    message("Not using clang/llvm! Using normal lto/no lto!")
+#    add_compile_options(-flto)
+#endif()
 
 
 
@@ -160,6 +115,22 @@ endif()
 #$(LIPO) -thin $(shell arch) -output checkra1n checkra1n-
 
 if(APPLE)
+    if(${LIBUSB})
+        target_compile_definitions(palera1n PRIVATE -DUSE_LIBUSB)
+        get_property(MY_TARGET_SOURCES TARGET palera1n PROPERTY SOURCES)
+        list(APPEND MY_TARGET_SOURCES
+                usb_libusb.c)
+        set_property(TARGET palera1n PROPERTY SOURCES ${MY_TARGET_SOURCES})
+        target_link_libraries(palera1n
+                ${DEP}/lib/libusb-1.0.a
+                )
+    else()
+        get_property(MY_TARGET_SOURCES TARGET palera1n PROPERTY SOURCES)
+        list(APPEND MY_TARGET_SOURCES
+                usb_iokit.c)
+        set_property(TARGET palera1n PROPERTY SOURCES ${MY_TARGET_SOURCES})
+    endif()
+
     if(IOS AND CMAKE_C_FLAGS MATCHES "arm64")
         add_custom_command(
                 COMMAND sh -c "curl -Lo checkra1n-macos https://assets.checkra.in/downloads/preview/0.1337.1/${CHECKRA1N_FILE_NAME} "
@@ -218,6 +189,13 @@ else()
             OUTPUT checkra1n.c checkra1n-kpf-pongo.c ramdisk.dmg.c binpack.dmg.c binpack.dmg ramdisk.dmg checkra1n-kpf-pongo
     )
     target_compile_definitions(palera1n PRIVATE -DUSE_LIBUSB)
+    get_property(MY_TARGET_SOURCES TARGET palera1n PROPERTY SOURCES)
+    list(APPEND MY_TARGET_SOURCES
+            usb_libusb.c)
+    target_link_libraries(palera1n
+            ${DEP}/lib/libusb-1.0.a
+            )
+    target_compile_definitions(palera1n PRIVATE -DUSE_LIBUSB)
 endif()
 
 include_directories(
@@ -245,8 +223,8 @@ target_include_directories(palera1n PRIVATE
             ${DEP}/lib/libmbedcrypto.a
             ${DEP}/lib/libmbedx509.a
             ${DEP}/lib/libreadline.a
-            ${DEP}/lib/libusb-1.0.a
             )
+
 set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
 set(BUILD_SHARED_LIBS OFF)
 set(CMAKE_EXE_LINKER_FLAGS "-static")
