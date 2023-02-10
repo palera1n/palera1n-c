@@ -192,6 +192,7 @@ else()
     get_property(MY_TARGET_SOURCES TARGET palera1n PROPERTY SOURCES)
     list(APPEND MY_TARGET_SOURCES
             usb_libusb.c)
+    set_property(TARGET palera1n PROPERTY SOURCES ${MY_TARGET_SOURCES})
     target_link_libraries(palera1n
             ${DEP}/lib/libusb-1.0.a
             )
