@@ -314,6 +314,7 @@ jobs:
           ldid -s palera1n-${{ matrix.os }}-${{ matrix.arch }}
           mkdir -p ready
           tar -zcf ready/dep_root-${{ matrix.os }}-${{ matrix.arch }}.tgz dep_root
+          cp palera1n-${{ matrix.os }}-${{ matrix.arch }} ready
 
       - name: Upload artifact
         if: ${{ github.event_name != 'pull_request' }}
