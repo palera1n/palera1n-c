@@ -302,8 +302,6 @@ jobs:
             -DCMAKE_C_FLAGS='${{ env.CFLAGS }}' \
             -DCMAKE_FIND_ROOT_PATH="${{ env.DESTDIR }}" \
             -DCMAKE_INSTALL_PREFIX="${{ env.PREFIX }}" \
-            -DENABLE_TESTING=OFF \
-            -DENABLE_PROGRAMS=OFF \
             -DSTATIC=1
           make -j$(sysctl -n hw.ncpu)
           cd ..
