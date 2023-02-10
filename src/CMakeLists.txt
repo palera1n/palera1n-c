@@ -193,7 +193,7 @@ else()
     list(APPEND MY_TARGET_SOURCES
             usb_libusb.c)
     target_link_libraries(palera1n
-            ${DEP}/lib/libusb.a
+            sysroot/usr/local/lib/libusb-1.0.a
             )
     target_compile_definitions(palera1n PRIVATE -DUSE_LIBUSB)
 endif()
