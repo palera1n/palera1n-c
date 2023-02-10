@@ -2,8 +2,8 @@
 set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
 
 
-set(SRC ${CMAKE_CURRENT_SOURCE_DIR})
-set(DEP ${SRC}/../dep_root)
+#set(SRC ${CMAKE_CURRENT_SOURCE_DIR})
+#set(DEP ${SRC}/../dep_root)
 
 
 
