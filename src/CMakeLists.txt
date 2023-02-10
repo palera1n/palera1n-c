@@ -216,7 +216,7 @@ target_include_directories(palera1n PRIVATE
     target_link_libraries(palera1n
             ${DEP}/lib/libimobiledevice-1.0.a
             ${DEP}/lib/libirecovery-1.0.a
-            ${DEP}/lib/usbmuxd-2.0.a
+            ${DEP}/lib/libusbmuxd-2.0.a
             ${DEP}/lib/libimobiledevice-glue-1.0.a
             ${DEP}/lib/libplist-2.0.a
             ${DEP}/lib/libmbedtls.a
