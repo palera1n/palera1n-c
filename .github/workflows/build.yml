@@ -669,4 +669,3 @@ jobs:
           dryRun: false
           localDir: 'ready/'
           remoteDir: '/palera1n/artifacts/c-rewrite'
-

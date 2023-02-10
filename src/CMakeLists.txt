@@ -66,6 +66,16 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "ASAN")
             tui_screen_options.c)
     set_property(TARGET palera1n PROPERTY SOURCES ${MY_TARGET_SOURCES})
     add_compile_options(-fsanitize=address,undefined -fsanitize-address-use-after-return=runtime)
+elseif(CMAKE_BUILD_TYPE STREQUAL "TSAN")
+get_property(MY_TARGET_SOURCES TARGET palera1n PROPERTY SOURCES)
+    list(APPEND MY_TARGET_SOURCES tui_main.c
+            tui_screen_enter_dfu.c
+            tui_screen_enter_recovery.c
+            tui_screen_jailbreak.c
+            tui_screen_main.c
+            tui_screen_options.c)
+    set_property(TARGET palera1n PROPERTY SOURCES ${MY_TARGET_SOURCES})
+    add_compile_options(-fsanitize=thread,undefined)
 else()
     set(CMAKE_BUILD_TYPE "Release")
 endif()
@@ -328,16 +338,3 @@ add_compile_definitions(
         BUILD_WHOAMI="${BUILD_WHOAMI}"
         BUILD_STYLE="${CMAKE_BUILD_TYPE}"
 )
-
-
-
-
-
-
-# runs during configure
-
-
-
-
-
-
