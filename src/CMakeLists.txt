@@ -217,6 +217,7 @@ else()
             COMMAND xxd -iC checkra1n-kpf-pongo checkra1n-kpf-pongo.c
             OUTPUT checkra1n.c checkra1n-kpf-pongo.c ramdisk.dmg.c binpack.dmg.c binpack.dmg ramdisk.dmg checkra1n-kpf-pongo
     )
+    target_compile_definitions(palera1n PRIVATE -DUSE_LIBUSB)
 endif()
 
 include_directories(
