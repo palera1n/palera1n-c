@@ -3,7 +3,7 @@ set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
 
 
 set(SRC ${CMAKE_CURRENT_SOURCE_DIR})
-set(DEP ${SRC}/dep_root)
+set(DEP ${SRC}/../dep_root)
 
 
 
@@ -122,7 +122,7 @@ if(APPLE)
                 usb_libusb.c)
         set_property(TARGET palera1n PROPERTY SOURCES ${MY_TARGET_SOURCES})
         target_link_libraries(palera1n
-                sysroot/usr/local/lib/libusb-1.0.a
+                ${DEP}/lib/libusb-1.0.a
                 )
     else()
         get_property(MY_TARGET_SOURCES TARGET palera1n PROPERTY SOURCES)
@@ -193,7 +193,7 @@ else()
     list(APPEND MY_TARGET_SOURCES
             usb_libusb.c)
     target_link_libraries(palera1n
-            sysroot/usr/local/lib/libusb-1.0.a
+            ${DEP}/lib/libusb-1.0.a
             )
     target_compile_definitions(palera1n PRIVATE -DUSE_LIBUSB)
 endif()
