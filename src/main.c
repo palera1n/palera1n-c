@@ -107,6 +107,11 @@ int palera1n(int argc, char *argv[]) {
 		else goto normal_exit;
 	}
 #endif
+
+    LOG(LOG_INFO, "=== palera1n-c ===");
+    LOG(LOG_INFO, "= Made with <3 by Nick Chan, Nebula, Mineek, Nathan, llsc12, Ploosh, and the amazing developers of checkra1n! \n\n\n");
+
+
 	LOG(LOG_INFO, "Waiting for devices");
 	pthread_create(&pongo_thread, NULL, pongo_helper, NULL);
 	pthread_create(&dfuhelper_thread, NULL, dfuhelper, NULL);
