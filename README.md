@@ -50,6 +50,7 @@ Join the [Support Discord](https://dsc.gg/palera1n), and find the palera1n-c thr
 <details><summary>palera1n-c Contributors and Credits</summary>
 <p>
 
+- [Nick Chan](https://github.com/asdfugil) for the rewrite
 - [Nebula](https://github.com/itsnebulalol), palera1n owner and Python rewrite lead developer
 - [Mineek](https://github.com/mineek)
 - [Tom](https://github.com/guacaplushy) for updated ploosh kpf
