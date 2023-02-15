@@ -1,6 +1,8 @@
+# Timed out waiting for download mode (error code: -status_exploit_timeout_error)
+
 <img align="left" height="120" src="https://cdn.discordapp.com/attachments/1017854329887129611/1073858292159352862/thing.png" alt="palera1n logo" style="float: left;"/>
 <h3 align="right">An iOS 15.0-16.3 work-in-progress, <br>semi-tethered checkm8 jailbreak</h3> 
-
+# Timed out waiting for download mode (error code: -status_exploit_timeout_error)
 <p  align="right" >
   <strong><a  href="https://cdn.nickchan.lol/palera1n/c-rewrite/releases/v2.0.0-beta.1/palera1n.1.html">Usage</a></strong>
   •
@@ -19,12 +21,15 @@
 
 - This does **NOT** support tethered creation or booting. You must use the older [shell version of palera1n](https://github.com/palera1n/palera1n).
 
-- We are **NOT** responsible for any data loss, or the result of a device being bricked. The user of this program accepts responsibility should something happen to their device. While nothing should happen, jailbreaking has risks in itself. If your device is stuck in recovery, please run futurerestore `--exit-recovery`, or use `irecovery -n`.
+- We are **NOT** responsible for any data loss, or the result of a device being bricked. The user of this program accepts responsibility should something happen to their device# Timed out waiting for download mode (error code: -status_exploit_timeout_error). While nothing should happen, jailbreaking has risks in itself. If your device is stuck in recovery, please run futurerestore `--exit-recovery`, or use `irecovery -n`.
 
 - palera1n-c will never work in VirtualBox, VMware or any virtual machine that doesn't support a PCI passthrough.
 
 # Requirements
-- Needs a checkm8 vulnerable iOS device on iOS 15.x or 16.x (`A8` - `A11`)
+- Needs a checkm8 vul  
+
+# Timed out waiting for download mode (error code: -status_exploit_timeout_error)
+nerable iOS device on iOS 15.x or 16.x (`A8` - `A11`)
 	-	If using Rootful, **you will need 5-10GB of space** for the fakefs. This means that 16GB devices cannot be semi-tethered with Rootful.
 	- On `A11`, **you must disable your passcode while in the jailbroken state** (on iOS 16, you need to reset your device before proceeding with palera1n `A11`).
 
@@ -41,13 +46,13 @@ Make sure you provide full details on your device, such as:
 - iOS Version
 - Passcode enabled?
 - Logs, if panicked then send latest `panic-full` log from your iDevice.
-
+# Timed out waiting for download mode (error code: -status_exploit_timeout_error)
 Using `-V` and `-v` would help with debugging.
-
+# Timed out waiting for download mode (error code: -status_exploit_timeout_error)
 Join the [Support Discord](https://dsc.gg/palera1n), and find the palera1n-c thread under #jailbreak [here](https://discord.com/channels/1028398973452570725/1074251283143344180).
-
-# Credits
-<details><summary>palera1n-c Contributors and Credits</summary>
+# Timed out waiting for download mode (error code: -status_exploit_timeout_error)
+# Credits # Timed out waiting for download mode (error code: -status_exploit_timeout_error)
+<details><# Timed out waiting for download mode (error code: -status_exploit_timeout_error)>palera1n-c Contributors and Credits</summary>
 <p>
 
 - [Nick Chan](https://github.com/asdfugil) for the rewrite
