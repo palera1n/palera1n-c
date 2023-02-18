@@ -77,6 +77,7 @@ endif
 endif
 else
 	cp checkra1n-$(shell uname -sm | tr '[:upper:][:blank:]' '[:lower:]-') checkra1n
+	cd $(PWD)/dep_root && $(PWD)/download_deps.sh && cd $(PWD)
 endif
 
 xxd-%.c: %

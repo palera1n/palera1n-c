@@ -7,11 +7,17 @@ curl -LOOOOOO \
             https://github.com/rpm-software-management/popt/archive/master-release.tar.gz
 
 tar xf v3.3.0.tar.gz
+rm v3.3.0.tar.gz
 tar xf libusb-1.0.26.tar.bz2
+rm libusb-1.0.26.tar.bz2
 tar xf readline-8.2.tar.gz
+rm readline-8.2.tar.gz
 tar xf slang-2.3.3.tar.bz2
+rm slang-2.3.3.tar.bz2
 tar xf newt-0.52.23.tar.gz
+rm newt-0.52.23.tar.gz
 tar xf master-release.tar.gz
+rm master-release.tar.gz
 
 git clone --depth=1 https://github.com/libimobiledevice/libplist
 git clone --depth=1 https://github.com/libimobiledevice/libimobiledevice-glue
