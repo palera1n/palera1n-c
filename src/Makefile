@@ -76,7 +76,7 @@ ifneq (,$(findstring version-min=, $(CFLAGS)))
 endif
 endif
 else
-	cp checkra1n-$(CHECKRA1N_NAME) checkra1n
+	cp checkra1n-$(shell uname -sm | tr '[:upper:][:blank:]' '[:lower:]-') checkra1n
 endif
 
 xxd-%.c: %
