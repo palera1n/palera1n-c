@@ -45,6 +45,11 @@ int p1_log(log_level_t loglevel, const char *fname, int lineno, const char *fxna
 		snprintf(colour, 0x10, "%s", YEL);
 		snprintf(colour_bold, 0x10, "%s", BYEL);
 		break;
+	case LOG_NOTICE:
+		snprintf(type, 0x10, "%s", "Notice");
+		snprintf(colour, 0x10, "%s", GRN);
+		snprintf(colour_bold, 0x10, "%s", BGRN);
+		break;
 	case LOG_INFO:
 		snprintf(type, 0x10, "%s", "Info");
 		snprintf(colour, 0x10, "%s", CYN);

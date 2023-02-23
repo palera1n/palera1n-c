@@ -110,12 +110,13 @@ typedef enum {
 	LOG_FATAL = 0,
 	LOG_ERROR = 1,
 	LOG_WARNING = 2,
-	LOG_INFO = 3,
-	LOG_VERBOSE = 4,
-	LOG_VERBOSE2 = 5,
-	LOG_VERBOSE3 = 6,
-	LOG_VERBOSE4 = 7,
-	LOG_VERBOSE5 = 8,
+	LOG_NOTICE = 3,
+	LOG_INFO = 4,
+	LOG_VERBOSE = 5,
+	LOG_VERBOSE2 = 6,
+	LOG_VERBOSE3 = 7,
+	LOG_VERBOSE4 = 8,
+	LOG_VERBOSE5 = 9,
 } log_level_t;
 
 typedef struct {
