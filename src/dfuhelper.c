@@ -159,6 +159,12 @@ void* connected_recovery_mode(struct irecv_device_info* info) {
 }
 
 void* connected_dfu_mode(struct irecv_device_info* info) {
+	if (strstr(info->serial_string, "YOLO:checkra1n")) {
+		in_yolo = true;
+		set_spin(0);
+		unsubscribe_cmd();
+		pthread_exit(NULL);
+	}
 	if (get_ecid_wait_for_dfu() == info->ecid) {
 		set_ecid_wait_for_dfu(0);
 		puts("");

@@ -40,6 +40,9 @@
 
 #include <palerain.h>
 #include <CoreFoundation/CoreFoundation.h>
+#include <IOKit/IOKitLib.h>
+#include <IOKit/usb/IOUSBLib.h>
+#include <IOKit/hid/IOHIDKeys.h>
 
 #define ERR(...) LOG(LOG_VERBOSE, __VA_ARGS__)
 
@@ -151,10 +154,35 @@ static void FoundDevice(void *refCon, io_iterator_t it)
                         if(ret != KERN_SUCCESS)
                         {
                             ERR("USBInterfaceOpen: %s", mach_error_string(ret));
+                            goto cleanup;
                         }
                         else
                         {
-                            io_start(stuff);
+                            CFMutableDictionaryRef snrdict = NULL;
+                            if ((ret = IORegistryEntryCreateCFProperties(usbDev, &snrdict, kCFAllocatorDefault, kNilOptions)) != KERN_SUCCESS)  {
+                                ERR("IORegistryEntryCreateCFProperties: %s", mach_error_string(ret));
+                                goto cleanup;
+                            }
+                                CFTypeRef obj = CFDictionaryGetValue(snrdict, CFSTR(kIOHIDSerialNumberKey));
+                                if (!obj) {
+                                    obj = CFDictionaryGetValue(snrdict, CFSTR(kUSBSerialNumberString));
+                                }
+                                char snr[0x100];
+                                assert(obj);
+                                bool get_snr_success = CFStringGetCString((CFStringRef)obj, snr, sizeof(snr), kCFStringEncodingASCII);
+                                if (!get_snr_success) {
+                                    ERR("CFStringGetCString failed");
+                                    goto cleanup;
+                                }
+                                device_mode_t mode;
+                                if (strstr(snr, "YOLO:checkra1n")) {
+                                    mode = DEVICE_MODE_YOLO;
+                                } else if (strstr(snr, "SRTG:[PongoOS-")) {
+                                    mode = DEVICE_MODE_PONGO;
+                                } else {
+                                    goto cleanup;
+                                }
+                            io_start(stuff, mode);
                             stuff->regID = regID;
                             while((usbIntf = IOIteratorNext(iter))) IOObjectRelease(usbIntf);
                             IOObjectRelease(iter);
@@ -162,6 +190,7 @@ static void FoundDevice(void *refCon, io_iterator_t it)
                             IOObjectRelease(usbDev);
                             return;
                         }
+                    cleanup:
                         (*stuff->handle)->Release(stuff->handle);
                         stuff->handle = NULL;
                     }
@@ -205,7 +234,7 @@ static void LostDevice(void *refCon, io_iterator_t it)
 static const int pongo_usb_vendor = PONGO_USB_VENDOR;
 static const int pongo_usb_product = PONGO_USB_PRODUCT;
 
-int wait_for_pongo(void) {
+int wait_for_pongo(int idProduct) {
     kern_return_t ret;
     stuff_t stuff;
     io_iterator_t found, lost;
@@ -219,7 +248,7 @@ int wait_for_pongo(void) {
 
     cfdict_values[0] = (void*)CFSTR("IOUSBDevice");
     cfdict_values[1] = (void*)CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &pongo_usb_vendor);
-    cfdict_values[2] = (void*)CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &pongo_usb_product);
+    cfdict_values[2] = (void*)CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &idProduct);
 
     CFDictionaryRef cfdict = CFDictionaryCreate(kCFAllocatorDefault, (const void**)cfdict_keys, (const void**)cfdict_values, 3, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
     IONotificationPortRef notifyPort = IONotificationPortCreate(kIOMasterPortDefault);
@@ -250,3 +279,4 @@ int wait_for_pongo(void) {
     CFRelease(cfdict);
     return 0;
 }
+

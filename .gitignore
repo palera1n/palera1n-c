@@ -20,5 +20,8 @@ docs/*.html
 build
 src/*.dmg.c
 .idea
+lz4dec.bin
+Pongo.bin
 src/stage2/
 src/libcheckra1nhelper.dylib*
+!src/checkra1n_hook.c

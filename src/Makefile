@@ -4,15 +4,10 @@ OBJECTS  = main.o dfuhelper.o devhelper.o lockdown_helper.o
 OBJECTS += optparse.o override_file.o log.o lock_vars.o credits.o
 OBJECTS += fake_embedded.o exec_checkra1n.o pongo_helper.o
 
-ifeq (,$(findstring macosx, $(CFLAGS)))
-ifneq (,$(findstring version-min=, $(CFLAGS)))
-OBJECTS += xxd-libcheckra1nhelper.dylib.o
-endif
-endif
+LIBCHECKRA1NHELPER_OBJECTS += checkra1n_hook.o chkstk.o
 
-ifeq ($(FORCE_HELPER),1)
+ifeq ($(TARGET_OS),Darwin)
 OBJECTS += xxd-libcheckra1nhelper.dylib.o
-CFLAGS += -DFORCE_HELPER
 endif
 
 ifneq ($(NO_RAMDISK),1)
@@ -35,6 +30,8 @@ OBJECTS += xxd-checkra1n.o
 else
 CFLAGS += -DNO_CHECKRAIN
 endif
+
+OBJECTS += xxd-Pongo.bin.o xxd-lz4dec.bin.o $(SRC)/lz4/lib/lz4.o $(SRC)/lz4/lib/lz4hc.o
 
 ifeq ($(DEV_BUILD),1)
 OBJECTS += tui_screen_enter_recovery.o tui_screen_enter_dfu.o tui_main.o
@@ -103,8 +100,11 @@ ifneq (,$(findstring version-min=, $(CFLAGS)))
 endif
 endif
 
-libcheckra1nhelper.dylib: chkstk.S
-	$(CC) $(CFLAGS) $(LDFLAGS) -shared chkstk.S -o libcheckra1nhelper.dylib
+libcheckra1nhelper.dylib: $(LIBCHECKRA1NHELPER_OBJECTS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -shared $(LIBCHECKRA1NHELPER_OBJECTS) -o libcheckra1nhelper.dylib
+
+chkstk.o: chkstk.S
+	$(CC) $(CFLAGS) -c chkstk.S
 
 checkra1n-kpf-pongo:
 	curl -LO https://cdn.nickchan.lol/palera1n/artifacts/kpf/checkra1n-kpf-pongo
@@ -114,6 +114,9 @@ ramdisk.dmg:
 
 binpack.dmg:
 	curl -LO https://cdn.nickchan.lol/palera1n/c-rewrite/deps/binpack.dmg
+
+Pongo.bin:
+	curl -LO https://cdn.nickchan.lol/palera1n/artifacts/kpf/Pongo.bin
 
 clean:
 	rm -rf *.o palera1n checkra1n checkra1n.c palera1n.dSYM libcheckra1nhelper.dylib

@@ -59,16 +59,14 @@ int exec_checkra1n(void) {
 		unlink(checkra1n_path);
 		return -1;
 	}
-#if defined(__APPLE__) && defined(__arm64__) && (TARGET_OS_IPHONE || defined(FORCE_HELPER))
+#if defined(__APPLE__)
 	char* libcheckra1nhelper_dylib_path = NULL;
 	{
 		struct utsname name;
 		uname(&name);
 		unsigned long darwinMajor = strtoul(name.release, NULL, 10);
 		assert(darwinMajor != 0);
-#if !defined(FORCE_HELPER)
-		if (darwinMajor < 20) {
-#endif
+
 			libcheckra1nhelper_dylib_path = malloc(strlen(tmpdir) + 40);
 			snprintf(libcheckra1nhelper_dylib_path, strlen(tmpdir) + 40, "%s/libcheckra1nhelper.dylib.XXXXXX", tmpdir);
 			int helper_fd = mkstemp(libcheckra1nhelper_dylib_path);
@@ -91,9 +89,6 @@ int exec_checkra1n(void) {
 				return -1;
 			}
 			setenv("DYLD_INSERT_LIBRARIES", libcheckra1nhelper_dylib_path, 1);
-#if !defined(FORCE_HELPER)
-		}
-#endif
 	}
 #endif
 checkra1n_exec: {};
@@ -123,7 +118,7 @@ checkra1n_exec: {};
 		free(checkra1n_path);
 		checkra1n_path = NULL;
 	}
-#if defined(__APPLE__) && defined(__arm64__) && (TARGET_OS_IPHONE || defined(FORCE_HELPER))
+#if defined(__APPLE__)
 	if (libcheckra1nhelper_dylib_path != NULL) {
 		unlink(libcheckra1nhelper_dylib_path);
 		unsetenv("DYLD_INSERT_LIBRARIES");

@@ -40,8 +40,15 @@
 #include <palerain.h>
 #define ERR(...) LOG(LOG_ERROR, __VA_ARGS__)
 
-void io_start(stuff_t *stuff);
+void io_start(stuff_t *stuff, device_mode_t mode);
 void io_stop(stuff_t *stuff);
+
+#define PRINT_LIBUSB_ERROR(e, name, more) do { \
+        if (e != LIBUSB_SUCCESS more) { \
+            ERR(name ": %s", libusb_error_name(e)); \
+            return e; \
+        }    \
+    } while(0)
 
 const char *usb_strerror(usb_ret_t err)
 {
@@ -123,39 +130,38 @@ static int FoundDevice(libusb_context *ctx, libusb_device *dev, libusb_hotplug_e
 
     libusb_device_handle *handle;
     int r = libusb_open(dev, &handle);
-    if(r != LIBUSB_SUCCESS)
-    {
-        ERR("libusb_open: %s", libusb_error_name(r));
-        return r;
-    }
-
+    PRINT_LIBUSB_ERROR(r, "libusb_open",);
+    char snr[0x100];
+    struct libusb_device_descriptor desc;
+    r = libusb_get_device_descriptor(dev, &desc);
+    PRINT_LIBUSB_ERROR(r, "libusb_get_device_descriptor",);
+    r = libusb_get_string_descriptor_ascii(handle,desc.iSerialNumber,(unsigned char*)snr,0x100);
 /* nah there would not be a kernel driver for pongoOS in Darwin */
 #if !defined(__APPLE__)
     r = libusb_detach_kernel_driver(handle, 0);
-    if(r != LIBUSB_SUCCESS && r != LIBUSB_ERROR_NOT_FOUND)
-    {
-        ERR("libusb_detach_kernel_driver: %s", libusb_error_name(r));
-        return r;
-    }
+    PRINT_LIBUSB_ERROR(r, "libusb_detach_kernel_driver", && r != LIBUSB_ERROR_NOT_FOUND);
 #endif
 
-    r = libusb_set_configuration(handle, 1);
-    if(r != LIBUSB_SUCCESS)
-    {
-        ERR("libusb_set_configuration: %s", libusb_error_name(r));
-        return r;
+    device_mode_t mode;
+    if (strstr(snr, "YOLO:checkra1n")) {
+            mode = DEVICE_MODE_YOLO;
+        } else if (strstr(snr, "SRTG:[PongoOS-")) {
+            mode = DEVICE_MODE_PONGO;
+        } else {
+            libusb_unref_device(dev);
+            libusb_close(handle);
+            return LIBUSB_SUCCESS;
     }
 
+    r = libusb_set_configuration(handle, 1);
+    PRINT_LIBUSB_ERROR(r, "libusb_set_configuration",);
+
     r = libusb_claim_interface(handle, 0);
-    if(r != LIBUSB_SUCCESS)
-    {
-        ERR("libusb_claim_interface: %s", libusb_error_name(r));
-        return r;
-    }
+    PRINT_LIBUSB_ERROR(r, "libusb_claim_interface",);
 
     stuff->dev = dev;
     stuff->handle = handle;
-    io_start(stuff);
+    io_start(stuff, mode);
 
     return LIBUSB_SUCCESS;
 }
@@ -178,18 +184,14 @@ static int LostDevice(libusb_context *ctx, libusb_device *dev, libusb_hotplug_ev
     return LIBUSB_SUCCESS;
 }
 
-int wait_for_pongo(void)
+int wait_for_pongo(int idProduct)
 {
     stuff_t stuff;
     libusb_hotplug_callback_handle hp[2];
     libusb_context* ctx = NULL;
 
     int r = libusb_init(&ctx);
-    if(r != LIBUSB_SUCCESS)
-    {
-        ERR("libusb_init: %s", libusb_error_name(r));
-        return -1;
-    }
+    PRINT_LIBUSB_ERROR(r, "libusb_init",);
 
     if(!libusb_has_capability(LIBUSB_CAP_HAS_HOTPLUG))
     {
@@ -198,30 +200,15 @@ int wait_for_pongo(void)
         return -1;
     }
 
-    r = libusb_hotplug_register_callback(ctx, LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED, 0, PONGO_USB_VENDOR, PONGO_USB_PRODUCT, LIBUSB_HOTPLUG_MATCH_ANY, FoundDevice, &stuff, &hp[0]);
-    if(r != LIBUSB_SUCCESS)
-    {
-        ERR("libusb_hotplug: %s", libusb_error_name(r));
-        libusb_exit(ctx);
-        return -1;
-    }
+    r = libusb_hotplug_register_callback(ctx, LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED, 0, PONGO_USB_VENDOR, idProduct, LIBUSB_HOTPLUG_MATCH_ANY, FoundDevice, &stuff, &hp[0]);
+    PRINT_LIBUSB_ERROR(r, "libusb_hotplug",);
 
-    r = libusb_hotplug_register_callback(ctx, LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT, 0, PONGO_USB_VENDOR, PONGO_USB_PRODUCT, LIBUSB_HOTPLUG_MATCH_ANY, LostDevice, &stuff, &hp[1]);
-    if(r != LIBUSB_SUCCESS)
-    {
-        ERR("libusb_hotplug: %s", libusb_error_name(r));
-        libusb_exit(ctx);
-        return -1;
-    }
+    r = libusb_hotplug_register_callback(ctx, LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT, 0, PONGO_USB_VENDOR, idProduct, LIBUSB_HOTPLUG_MATCH_ANY, LostDevice, &stuff, &hp[1]);
+    PRINT_LIBUSB_ERROR(r, "libusb_hotplug",);
 
     libusb_device **list;
     ssize_t sz = libusb_get_device_list(ctx, &list);
-    if(sz < 0)
-    {
-        ERR("libusb_get_device_list: %s", libusb_error_name((int)sz));
-        libusb_exit(ctx);
-        return -1;
-    }
+    PRINT_LIBUSB_ERROR((int)sz, "libusb_get_device_list",);
 
     for(ssize_t i = 0; i < sz; ++i)
     {
@@ -229,10 +216,10 @@ int wait_for_pongo(void)
         r = libusb_get_device_descriptor(list[i], &desc);
         if(r != LIBUSB_SUCCESS)
         {
-            ERR("libusb_get_device_descriptor: %s", libusb_error_name(r));
+            PRINT_LIBUSB_ERROR((int)sz, "libusb_get_device_descriptor",);
             // continue anyway
         }
-        if(desc.idVendor != PONGO_USB_VENDOR || desc.idProduct != PONGO_USB_PRODUCT)
+        if(desc.idVendor != PONGO_USB_VENDOR || desc.idProduct != idProduct)
         {
             libusb_unref_device(list[i]);
             continue;

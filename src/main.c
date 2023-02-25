@@ -28,6 +28,14 @@
 #include <xxd-embedded.h>
 #include <kerninfo.h>
 
+#ifndef __INTELLISENSE__
+#include "lz4.h"
+#include "lz4hc.h"
+#else
+#include "lz4/lib/lz4.h"
+#include "lz4/lib/lz4hc.h"
+#endif
+
 #define CMD_LEN_MAX 512
 #define OVERRIDE_MAGIC 0xd803b376
 
@@ -35,21 +43,27 @@ unsigned int verbose = 0;
 char xargs_cmd[0x270] = "xargs ", checkrain_flags_cmd[0x20] = "deadbeef", palerain_flags_cmd[0x20] = "deadbeef";
 char kpf_flags_cmd[0x20] = "deadbeef", dtpatch_cmd[0x20] = "deadbeef", rootfs_cmd[512] = "deadbeef";
 extern char** environ;
+bool in_yolo = false;
 
+niarelap_file_t* pongo_to_upload_1 = &Pongo_bin;
 niarelap_file_t* kpf_to_upload_1 = &checkra1n_kpf_pongo;
 niarelap_file_t* ramdisk_to_upload_1 = &ramdisk_dmg;
 niarelap_file_t* overlay_to_upload_1 = &binpack_dmg;
 
+niarelap_file_t** pongo_to_upload = &pongo_to_upload_1;
 niarelap_file_t** kpf_to_upload = &kpf_to_upload_1;
 niarelap_file_t** ramdisk_to_upload = &ramdisk_to_upload_1;
 niarelap_file_t** overlay_to_upload = &overlay_to_upload_1;
 
-override_file_t override_ramdisk, override_kpf, override_overlay;
+override_file_t override_ramdisk, override_kpf, override_overlay, override_pongo;
 
 uint32_t checkrain_flags = 0, palerain_flags = 0, kpf_flags = 0;
 
 pthread_mutex_t log_mutex;
 pthread_t dfuhelper_thread, pongo_thread;
+
+char* pongo_buf = NULL;
+unsigned int pongo_buf_len = 0;
 
 void thr_cleanup(void* ptr) {
 	*(int*)ptr = 0;
@@ -92,7 +106,7 @@ bool tui_started = false;
 
 #ifdef USE_LIBUSB
 void log_cb(libusb_context *ctx, enum libusb_log_level level, const char *str) {
-    LOG(level + 0, str);
+    LOG(level + LOG_INFO, str);
 }
 #endif
 
@@ -116,7 +130,7 @@ int palera1n(int argc, char *argv[]) {
 #endif
 #ifdef USE_LIBUSB
 	{
-		libusb_set_log_cb(NULL, log_cb, LIBUSB_LOG_CB_GLOBAL);
+		// libusb_set_log_cb(NULL, log_cb, LIBUSB_LOG_CB_GLOBAL);
 		libusb_context* ctx = NULL;
 		int test_libusb = libusb_init(&ctx);
 		if (test_libusb) {
@@ -127,9 +141,24 @@ int palera1n(int argc, char *argv[]) {
 	libusb_exit(ctx);
 	}
 #endif
+	{
+		size_t outsz = LZ4_COMPRESSBOUND(Pongo_bin_len);
+		char* pongo_buf = calloc(1, outsz + lz4dec_bin_len);
+		int outlen = LZ4_compress_HC((const char*)(**pongo_to_upload), (char*)(pongo_buf + lz4dec_bin_len), (int)Pongo_bin_len, (int)outsz, LZ4HC_CLEVEL_MAX);
+		if (!outlen) {
+			LOG(LOG_ERROR, "PongoOS compression failed");
+			return -1;
+		}
+		memcpy(pongo_buf, lz4dec_bin, lz4dec_bin_len);
+		pongo_buf_len = (outlen + lz4dec_bin_len);
+		LOG(LOG_VERBOSE3, "Compressed PongoOS: %u bytes -> %d bytes" ,Pongo_bin_len, pongo_buf_len);
+		*(uint32_t*)(pongo_buf + lz4dec_bin_len - 4) = Pongo_bin_len;
+	}
 
-	if (!checkrain_option_enabled(host_flags, host_option_device_info))
+	if (!checkrain_option_enabled(host_flags, host_option_device_info)) {
 		LOG(LOG_INFO, "Waiting for devices");
+	}
+
 	
 	pthread_create(&pongo_thread, NULL, pongo_helper, NULL);
 	pthread_create(&dfuhelper_thread, NULL, dfuhelper, NULL);
@@ -142,14 +171,23 @@ int palera1n(int argc, char *argv[]) {
 		checkrain_option_enabled(host_flags, host_option_device_info) || 
 		device_has_booted)
 		goto normal_exit;
+	if (in_yolo) {
+		goto pongo;
+	}
 	if (exec_checkra1n()) goto cleanup;
-
-	if (checkrain_option_enabled(host_flags, host_option_pongo_exit) || checkrain_option_enabled(host_flags, host_option_demote))
+#ifdef __APPLE__
+	in_yolo = true;
+#endif
+	if (checkrain_option_enabled(host_flags, host_option_demote))
 		goto normal_exit;
 	set_spin(1);
-	sleep(2);
+	// sleep(2);
+
+pongo:
 	pthread_create(&pongo_thread, NULL, pongo_helper, NULL);
 	pthread_join(pongo_thread, NULL);
+
+
 	while (get_spin())
 	{
 		sleep(1);
@@ -177,6 +215,12 @@ normal_exit:
 	}
 
 cleanup:
+	free(pongo_buf);
+	pongo_buf_len = 0;
+	if (override_pongo.magic == OVERRIDE_MAGIC) {
+		munmap(override_pongo.ptr, (size_t)override_pongo.len);
+		close(override_pongo.fd);
+	}
 	if (override_kpf.magic == OVERRIDE_MAGIC) {
 		munmap(override_kpf.ptr, (size_t)override_kpf.len);
 		close(override_kpf.fd);

@@ -176,6 +176,8 @@ int optparse(int argc, char* argv[]) {
 			if (access(optarg, F_OK) != 0) {
 				LOG(LOG_FATAL, "Cannot access pongo file at %s: %d (%s)", optarg, errno, strerror(errno));
 				return -1;
+			} else if (override_file(&override_pongo, pongo_to_upload, &Pongo_bin_len, optarg)) {
+				return 1;
 			}
 			pongo_path = malloc(strlen(optarg) + 1);
 			strcpy(pongo_path, optarg);
@@ -274,6 +276,10 @@ int optparse(int argc, char* argv[]) {
 	if (override_overlay.magic == OVERRIDE_MAGIC) {
 		LOG(LOG_VERBOSE4, "overlay override length %u -> %u", override_overlay.orig_len, binpack_dmg_len);
 		LOG(LOG_VERBOSE4, "overlay override ptr %p -> %p", override_overlay.orig_ptr, **overlay_to_upload);
+	}
+	if (override_pongo.magic == OVERRIDE_MAGIC) {
+		LOG(LOG_VERBOSE4, "pongo override length %u -> %u", override_pongo.orig_len, Pongo_bin_len);
+		LOG(LOG_VERBOSE4, "pongo override ptr %p -> %p", override_pongo.orig_ptr, **pongo_to_upload);
 	}
 
 	if (!checkrain_option_enabled(palerain_flags, palerain_option_rootful)) {

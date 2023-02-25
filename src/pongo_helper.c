@@ -21,7 +21,8 @@ int pongo_thr_running = 0;
 void* pongo_helper(void* ptr) {
 	pongo_thr_running = 1;
 	pthread_cleanup_push(thr_cleanup, &pongo_thr_running);
-	wait_for_pongo();
+	wait_for_pongo(PONGO_USB_PRODUCT);
+	wait_for_pongo(YOLO_USB_PRODUCT);
 	while (get_spin()) {
 		sleep(1);
 	}
@@ -33,6 +34,8 @@ void *pongo_usb_callback(void *arg) {
 	if (get_found_pongo())
 		return NULL;
 	set_found_pongo(1);
+	if (checkrain_option_enabled(host_flags, host_option_pongo_exit))
+		goto done;
 	if (checkrain_option_enabled(palerain_flags, palerain_option_setup_rootful)) {
 		strncat(xargs_cmd, " wdt=-1", 0x270 - strlen(xargs_cmd) - 1);	
 	}
@@ -88,6 +91,21 @@ done:
 	set_spin(0);
 	return NULL;
 }
+
+bool yolo_already = false;
+void *yolo_usb_callback(void *arg) {
+	if (yolo_already) return NULL;
+	yolo_already = true;
+	usb_device_handle_t handle = (((stuff_t *)arg)->handle);
+	LOG(LOG_VERBOSE, "Download mode device found");
+
+	USBControlTransfer(handle, 0x21, 1, 0, 0, pongo_buf_len, pongo_buf, NULL);
+	free(pongo_buf);
+	USBControlTransfer(handle, 0x21, 4, 0, 0, 0, NULL, NULL);
+	LOG(LOG_INFO, "Booting PongoOS...");
+	return NULL;
+}
+
 
 int issue_pongo_command(usb_device_handle_t handle, char *command)
 {
@@ -171,9 +189,14 @@ int upload_pongo_file(usb_device_handle_t handle, unsigned char *buf, unsigned i
 	return ret;
 }
 
-void io_start(stuff_t *stuff)
+void io_start(stuff_t *stuff, device_mode_t mode)
 {
-    int r = pthread_create(&stuff->th, NULL, &pongo_usb_callback, stuff);
+	int r= 0;
+	if (mode == DEVICE_MODE_PONGO) {
+    	r = pthread_create(&stuff->th, NULL, &pongo_usb_callback, stuff);
+	} else if (mode == DEVICE_MODE_YOLO) {
+		r = pthread_create(&stuff->th, NULL, &yolo_usb_callback, stuff);
+	}
     if(r != 0)
     {
         ERR("pthread_create: %s", strerror(r));

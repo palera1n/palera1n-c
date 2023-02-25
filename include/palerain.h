@@ -103,6 +103,8 @@ struct mach_header_64
 // Keep in sync with Pongo
 #define PONGO_USB_VENDOR    0x05ac
 #define PONGO_USB_PRODUCT   0x4141
+#define YOLO_USB_VENDOR     0x05ac
+#define YOLO_USB_PRODUCT	0x1227
 #define CMD_LEN_MAX         512
 #define UPLOADSZ_MAX        (1024 * 1024 * 128)
 
@@ -159,9 +161,9 @@ extern checkrain_option_p host_flags_p;
 extern pthread_t dfuhelper_thread, pongo_thread;
 extern int pongo_thr_running, dfuhelper_thr_running;
 
-extern niarelap_file_t *kpf_to_upload_1, *ramdisk_to_upload_1, *overlay_to_upload_1;
-extern niarelap_file_t **kpf_to_upload, **ramdisk_to_upload, **overlay_to_upload;
-extern override_file_t override_ramdisk, override_kpf, override_overlay;
+extern niarelap_file_t *kpf_to_upload_1, *ramdisk_to_upload_1, *overlay_to_upload_1, *pongo_to_upload_1;
+extern niarelap_file_t **kpf_to_upload, **ramdisk_to_upload, **overlay_to_upload, **pongo_to_upload;
+extern override_file_t override_ramdisk, override_kpf, override_overlay, override_pongo;
 
 extern uint32_t checkrain_flags, palerain_flags, kpf_flags;
 extern pthread_mutex_t log_mutex;
@@ -177,6 +179,14 @@ extern char kpf_flags_cmd[0x20];
 extern char dtpatch_cmd[0x20];
 extern char rootfs_cmd[512];
 extern char* ext_checkra1n;
+extern char* pongo_buf;
+extern unsigned int pongo_buf_len;
+extern bool in_yolo;
+
+typedef enum {
+	DEVICE_MODE_YOLO = 0,
+	DEVICE_MODE_PONGO = 1
+} device_mode_t;
 
 void thr_cleanup(void* ptr);
 void* dfuhelper(void* ptr);
@@ -203,7 +213,7 @@ void* pongo_helper(void* ptr);
 extern void* pongo_usb_callback(void* arg);
 usb_ret_t USBControlTransfer(usb_device_handle_t handle, uint8_t bmRequestType, uint8_t bRequest, uint16_t wValue, uint16_t wIndex, uint32_t wLength, void *data, uint32_t *wLenDone);
 const char *usb_strerror(usb_ret_t err);
-int wait_for_pongo(void);
+int wait_for_pongo(int idProduct);
 int upload_pongo_file(usb_device_handle_t, unsigned char*, unsigned int);
 int issue_pongo_command(usb_device_handle_t, char*);
 int tui(void);
@@ -218,7 +228,7 @@ uint64_t get_ecid_wait_for_dfu(void);
 uint64_t set_ecid_wait_for_dfu(uint64_t ecid);
 
 void write_stdout(char *buf, uint32_t len);
-void io_start(stuff_t *stuff);
+void io_start(stuff_t *stuff, device_mode_t mode);
 void io_stop(stuff_t *stuff);
 
 void print_credits(void);

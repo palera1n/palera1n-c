@@ -1,3 +1,5 @@
+#if defined(__arm64__)
+
 #define _PTHREAD_STRUCT_DIRECT_STACKADDR_OFFSET   -48
 #define _PTHREAD_STRUCT_DIRECT_STACKBOTTOM_OFFSET -40
 
@@ -63,3 +65,4 @@ Lend:
         sub     x10, x10, x9
         ldr     x11, [x10]
         b       Lexit
+#endif
