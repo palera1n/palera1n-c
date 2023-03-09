@@ -122,9 +122,11 @@ void* connected_recovery_mode(struct irecv_device_info* info) {
 		LOG(LOG_ERROR, "Cannot set auto-boot back to true");
 		return NULL;
 	}
-	LOG(LOG_INFO, "Press Enter when ready for DFU mode");
-	getchar();
-	step(3, 0, "Get ready", NULL, 0);
+    if (!getenv("PALERA1N_DFU_NO_WAIT")) {
+        LOG(LOG_INFO, "Press Enter when ready for DFU mode");
+        getchar();
+        step(3, 0, "Get ready", NULL, 0);
+    }
 	if (NOHOME) 
 		step(4, 2, "Hold volume down + side button", NULL, 0);
 	else
